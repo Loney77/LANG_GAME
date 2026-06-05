@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: langgame-db
+    environment:
+      POSTGRES_DB: langgame
+      POSTGRES_USER: langgame
+      POSTGRES_PASSWORD: langgame
+    ports:
+      # Хост 5433 → контейнер 5432 (5432 на хосте занят локальным PostgreSQL).
+      - "5433:5432"
+    volumes:
+      - langgame-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U langgame -d langgame"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  langgame-pgdata:

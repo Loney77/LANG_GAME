@@ -1,0 +1,47 @@
+# --- Java / Gradle ---
+target/
+*.class
+*.jar
+*.war
+!gradle/wrapper/gradle-wrapper.jar
+.gradle/
+build/
+*.log
+
+# --- IDE ---
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# --- Node / React Native ---
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.expo/
+dist/
+*.tsbuildinfo
+
+# Android / iOS build artifacts
+mobile/android/app/build/
+mobile/android/.gradle/
+mobile/ios/Pods/
+mobile/ios/build/
+
+# --- Env / secrets ---
+.env
+.env.local
+*.local
+
+# --- OS ---
+Thumbs.db
+.DS_Store
+
+# --- Данные стороннего словаря (Сёзлюк/Эльбрусоид) 
+data/sozluk*.json
+*.slovarbr
+data/russian.txt
+tools/cloudflared.exe
+tools/cf.log*
