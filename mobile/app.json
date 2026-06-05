@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "Сёз оюн",
+    "slug": "soz-oyun",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#1f6f43"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "android": {
+      "package": "ru.skfu.sozoyun"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "plugins": [
+      "expo-asset"
+    ]
+  }
+}
