@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
+<!--
+  Набор проверок стиля и качества кода для сервера «Сёз оюн».
+  Умеренный профиль: ключевые проверки без чрезмерного шума.
+-->
+<module name="Checker">
+    <property name="severity" value="warning"/>
+    <property name="fileExtensions" value="java"/>
+
+    <!-- Подавление ложноположительных находок (соглашения фреймворков). -->
+    <module name="SuppressionFilter">
+        <property name="file" value="${config_loc}/suppressions.xml"/>
+    </module>
+
+    <!-- Файлы не должны быть слишком длинными. -->
+    <module name="FileLength">
+        <property name="max" value="400"/>
+    </module>
+
+    <module name="TreeWalker">
+        <!-- Импорты -->
+        <module name="UnusedImports"/>
+        <module name="RedundantImport"/>
+
+        <!-- Соглашения об именовании -->
+        <module name="TypeName"/>
+        <module name="MethodName"/>
+        <module name="MemberName"/>
+        <module name="ParameterName"/>
+        <module name="ConstantName"/>
+
+        <!-- Блоки и фигурные скобки -->
+        <module name="NeedBraces"/>
+        <module name="EmptyBlock">
+            <property name="option" value="text"/>
+        </module>
+        <module name="LeftCurly"/>
+        <module name="RightCurly"/>
+
+        <!-- Потенциальные ошибки -->
+        <module name="EqualsHashCode"/>
+        <module name="SimplifyBooleanExpression"/>
+        <module name="SimplifyBooleanReturn"/>
+
+        <!-- Длина методов -->
+        <module name="MethodLength">
+            <property name="max" value="80"/>
+        </module>
+    </module>
+</module>

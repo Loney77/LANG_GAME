@@ -1,0 +1,96 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.5.14'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
+    id 'checkstyle'
+}
+
+group = 'ru.skfu'
+version = '0.1.0'
+description = 'Сервер приложения «Сёз оюн» для обучения карачаевскому языку (PCMEF)'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    jjwtVersion = '0.12.6'
+    springdocVersion = '2.8.17'
+}
+
+dependencies {
+    // Lombok (сокращение boilerplate в Entity/DTO)
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    // Control / Presentation (REST)
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Foundation (доступ к данным)
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'org.postgresql:postgresql'
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-database-postgresql'
+
+    // Безопасность: Spring Security + JWT
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
+
+    // OpenAPI / Swagger UI
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
+
+    // Тесты
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'com.h2database:h2'                 // H2 для slice/unit-тестов без PostgreSQL
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport          // отчёт о покрытии после тестов
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        html.required = true
+        xml.required = true
+    }
+}
+
+// Требование методички: покрытие строк > 40%
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.40
+            }
+        }
+    }
+}
+
+check.dependsOn jacocoTestCoverageVerification
+
+// Статический анализ (Checkstyle). Не валит сборку — формирует отчёт-артефакт.
+checkstyle {
+    toolVersion = '10.18.2'
+    configFile = file("$rootDir/config/checkstyle/checkstyle.xml")
+    ignoreFailures = true
+    maxWarnings = Integer.MAX_VALUE
+}
+checkstyleTest.enabled = false   // анализируем основной код

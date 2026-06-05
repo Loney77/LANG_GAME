@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+<suppressions>
+    <!--
+      В именах методов репозиториев Spring Data подчёркивание — это намеренный
+      синтаксис навигации по вложенным свойствам (User_Id = User.id).
+      Поэтому отключаем проверку MethodName для репозиториев.
+    -->
+    <suppress checks="MethodName" files="[\\/]foundation[\\/].*Repository\.java"/>
+</suppressions>
