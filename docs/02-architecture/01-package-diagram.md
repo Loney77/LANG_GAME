@@ -95,7 +95,7 @@ SR --> DB
 ## Соответствие пакетам Java
 
 ```
-ru.skfu.langgame
+ru.langgame
 ├── control      # @RestController + DTO + обработка ошибок
 ├── mediator     # @Service (бизнес-логика, @Transactional) + интерфейсы IService
 ├── entity       # @Entity (доменные объекты с методами) + enum

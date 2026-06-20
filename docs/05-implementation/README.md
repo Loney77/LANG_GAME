@@ -4,7 +4,7 @@
 
 ## Что реализовано
 
-Слои PCMEF на сервере (`server/src/main/java/ru/skfu/langgame/`):
+Слои PCMEF на сервере (`server/src/main/java/ru/langgame/`):
 
 | Слой | Пакет | Классы |
 |------|-------|--------|
@@ -25,7 +25,7 @@
 
 ## Юнит-тесты
 
-`server/src/test/java/ru/skfu/langgame/`:
+`server/src/test/java/ru/langgame/`:
 
 | Тест | Покрывает |
 |------|-----------|

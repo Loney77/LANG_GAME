@@ -13,7 +13,7 @@
       "**/*"
     ],
     "android": {
-      "package": "ru.skfu.sozoyun"
+      "package": "ru.sozoyun"
     },
     "ios": {
       "supportsTablet": true
