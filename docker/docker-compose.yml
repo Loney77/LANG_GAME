@@ -7,7 +7,6 @@ services:
       POSTGRES_USER: langgame
       POSTGRES_PASSWORD: langgame
     ports:
-      # Хост 5433 → контейнер 5432 (5432 на хосте занят локальным PostgreSQL).
       - "5433:5432"
     volumes:
       - langgame-pgdata:/var/lib/postgresql/data
@@ -16,6 +15,37 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  server:
+    build:
+      context: ../server
+    container_name: langgame-server
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/langgame
+      DB_USER: langgame
+      DB_PASSWORD: langgame
+      JWT_SECRET: ${JWT_SECRET:-change-me-dev-secret-change-me-dev-secret-32b}
+      SERVER_PORT: "8137"
+      # Расширенный словарь подхватывается, если файл смонтирован (иначе — базовый из Flyway).
+      JAVA_TOOL_OPTIONS: "-Dapp.seed.sozluk-file=/data/sozluk.words.json"
+    volumes:
+      - ../data:/data:ro
+    ports:
+      - "8137:8137"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: langgame-ngrok
+    command: http server:8137 --url=${NGROK_DOMAIN}
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    ports:
+      - "4040:4040"   # веб-инспектор ngrok: http://localhost:4040
+    depends_on:
+      - server
 
 volumes:
   langgame-pgdata:

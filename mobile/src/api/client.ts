@@ -20,6 +20,10 @@ import type {
 export const http = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
+  headers: {
+    // Пропуск предупреждающей страницы туннеля (ngrok) — клиент всегда получает JSON.
+    'ngrok-skip-browser-warning': 'true',
+  },
 });
 
 // Подставляем Bearer-токен в каждый запрос.

@@ -2,12 +2,14 @@
 
 ## Сервер
 
+Перед первым запуском заполните `docker/.env` (см. `docker/.env.example`).
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\run-server.ps1
 ```
 
-Поднимает PostgreSQL в Docker и запускает сервер на `http://localhost:8137`
-(Swagger UI — `/swagger-ui.html`). Остановка — `Ctrl+C`.
+Поднимает в Docker весь серверный стек: PostgreSQL, сервер на `http://localhost:8137`
+(Swagger UI — `/swagger-ui.html`) и туннель ngrok для доступа извне. Остановка — `Ctrl+C`.
 
 ## Мобильный клиент
 

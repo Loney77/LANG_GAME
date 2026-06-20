@@ -52,23 +52,25 @@
 
 ## Запуск
 
-Параметры подключения и секреты задаются переменными окружения и имеют значения
-по умолчанию для локального запуска.
-
 ### Сервер
 
+Весь серверный стек (PostgreSQL, REST API и публичный туннель ngrok) запускается
+в Docker одной командой. Перед первым запуском заполняется `docker/.env`
+(см. `docker/.env.example`).
+
 ```bash
-docker compose -f docker/docker-compose.yml up -d      # PostgreSQL
-cd server && ./gradlew bootRun
+cd docker
+docker compose up --build
 ```
 
-Документация API (Swagger UI): `http://localhost:8137/swagger-ui.html`.
-Переменные окружения: `SERVER_PORT`, `DB_URL`, `DB_USER`, `DB_PASSWORD`, `JWT_SECRET`.
+Документация API (Swagger UI): `http://localhost:8137/swagger-ui.html`; извне
+сервер доступен по адресу из `NGROK_DOMAIN`. Подробнее — в [docker/README.md](docker/README.md).
 
 ### Клиент
 
 Адрес сервера задаётся переменной `EXPO_PUBLIC_API_URL` в файле `mobile/.env`
-(см. `mobile/.env.example`).
+(см. `mobile/.env.example`); значением выступает домен ngrok, что позволяет
+работать из любой сети.
 
 ```bash
 cd mobile

@@ -1,58 +1,47 @@
-# Локальный запуск и проверка бэкенда
+# Запуск в Docker
 
-## 1. Поднять PostgreSQL (Docker)
+Полный стек (PostgreSQL, сервер и публичный туннель ngrok) поднимается одной командой.
+Это позволяет запускать проект на любом устройстве без установки Java и ручной настройки —
+достаточно Docker.
 
-```bash
-docker compose -f docker/docker-compose.yml up -d
-```
+## 1. Настройка
 
-БД доступна на `localhost:5433` (внутри контейнера 5432; 5433 выбран, чтобы не
-конфликтовать с локально установленным PostgreSQL на 5432). БД/пользователь/пароль:
-`langgame`/`langgame`/`langgame`.
-
-## 2. Запустить сервер против этой БД
+Скопируйте шаблон переменных окружения и заполните его:
 
 ```bash
-cd server
-./gradlew bootJar
-# Windows PowerShell:
-$env:DB_URL="jdbc:postgresql://localhost:5433/langgame"; $env:DB_USER="langgame"; $env:DB_PASSWORD="langgame"
-java -jar build/libs/lang-game-0.1.0.jar
+cp .env.example .env        # Windows PowerShell: Copy-Item .env.example .env
 ```
 
-При старте Flyway применит миграции V1–V3 (схема + справочники + 246 слов).
-Признак успеха в логе: `Successfully applied 3 migrations` и `Started LangGameApplication`.
+| Переменная | Назначение |
+|------------|-----------|
+| `NGROK_AUTHTOKEN` | Токен из личного кабинета ngrok |
+| `NGROK_DOMAIN` | Постоянный домен ngrok (полный URL со схемой) |
+| `JWT_SECRET` | Ключ подписи JWT |
 
-## 3. Проверить данные
+## 2. Запуск
 
 ```bash
-docker exec langgame-db psql -U langgame -d langgame -c "select count(*) from word;"           # 246
-docker exec langgame-db psql -U langgame -d langgame -c "select count(*) from word where letter_count=5;"  # 239
+docker compose up --build
 ```
 
-## 4. Остановить
+Поднимаются три сервиса:
+
+| Сервис | Назначение | Порт |
+|--------|-----------|------|
+| `db` | PostgreSQL | `localhost:5433` |
+| `server` | REST API (Spring Boot) | `localhost:8137` |
+| `ngrok` | Публичный туннель к серверу | домен из `NGROK_DOMAIN` |
+
+При первом старте сервер применяет миграции Flyway (схема, справочники, словарь).
+Документация API доступна по адресу `http://localhost:8137/swagger-ui.html`, а извне —
+по адресу `NGROK_DOMAIN`. Веб-инспектор ngrok — `http://localhost:4040`.
+
+Адрес `NGROK_DOMAIN` указывается в мобильном клиенте через `mobile/.env`
+(`EXPO_PUBLIC_API_URL`), после чего приложение работает из любой сети.
+
+## 3. Остановка
 
 ```bash
-# сервер — Ctrl+C; контейнер:
-docker compose -f docker/docker-compose.yml down        # с сохранением данных в volume
-docker compose -f docker/docker-compose.yml down -v     # удалить и данные
+docker compose down        # с сохранением данных
+docker compose down -v     # с удалением данных базы
 ```
-
-## Расширенный словарь (локально, не в репозитории)
-
-Базовый seed (миграция V3) — 246 слов. Для полноценной игры есть dev-загрузчик
-`SozlukSeedLoader`: если рядом лежит `data/sozluk.words.json` (≈28k слов, извлекается
-скриптом `tools/extract_sozluk.py` из БД Сёзлюка — **в репозиторий не коммитится**),
-он догружает слова при старте (идемпотентно).
-
-```bash
-# запуск с указанием файла словаря (абсолютный путь надёжнее):
-java -Dapp.seed.sozluk-file=C:\Users\Klance\lang_game\data\sozluk.words.json -jar build/libs/lang-game-0.1.0.jar
-# либо через gradlew bootRun из server/ — путь по умолчанию ../data/sozluk.words.json
-```
-
-Признак в логе: `Загрузка Сёзлюка завершена: добавлено N слов`. Повторные старты
-пропускают загрузку (в БД уже >1000 слов). Отключить: `-Dapp.seed.enabled=false`.
-
-> Swagger UI: http://localhost:8137/swagger-ui.html — зарегистрироваться, нажать
-> Authorize, вставить JWT, дёргать эндпоинты.
