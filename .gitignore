@@ -39,8 +39,7 @@ mobile/ios/build/
 Thumbs.db
 .DS_Store
 
-# --- Данные стороннего словаря (Сёзлюк/Эльбрусоид) 
-data/sozluk*.json
+# --- Вспомогательные/служебные файлы (не часть проекта) ---
 *.slovarbr
 data/russian.txt
 tools/cloudflared.exe
