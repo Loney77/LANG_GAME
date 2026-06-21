@@ -20,10 +20,6 @@ import type {
 export const http = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
-  headers: {
-    // Пропуск предупреждающей страницы туннеля (ngrok) — клиент всегда получает JSON.
-    'ngrok-skip-browser-warning': 'true',
-  },
 });
 
 // Подставляем Bearer-токен в каждый запрос.
@@ -69,10 +65,8 @@ export const api = {
       .then((r) => r.data),
 
   // --- misc ---
-  leaderboard: (gameType = 'SOZDL', days = 7) =>
-    http
-      .get<LeaderboardEntry[]>(`/api/leaderboard?gameType=${gameType}&days=${days}`)
-      .then((r) => r.data),
+  leaderboard: (days = 30) =>
+    http.get<LeaderboardEntry[]>(`/api/leaderboard?days=${days}`).then((r) => r.data),
   mySessions: () => http.get<SessionDto[]>('/api/sessions/me').then((r) => r.data),
   words: (length?: number) =>
     http

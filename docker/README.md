@@ -1,47 +1,34 @@
 # Запуск в Docker
 
-Полный стек (PostgreSQL, сервер и публичный туннель ngrok) поднимается одной командой.
-Это позволяет запускать проект на любом устройстве без установки Java и ручной настройки —
-достаточно Docker.
+## Локальная разработка
 
-## 1. Настройка
-
-Скопируйте шаблон переменных окружения и заполните его:
-
-```bash
-cp .env.example .env        # Windows PowerShell: Copy-Item .env.example .env
-```
-
-| Переменная | Назначение |
-|------------|-----------|
-| `NGROK_AUTHTOKEN` | Токен из личного кабинета ngrok |
-| `NGROK_DOMAIN` | Постоянный домен ngrok (полный URL со схемой) |
-| `JWT_SECRET` | Ключ подписи JWT |
-
-## 2. Запуск
+PostgreSQL и сервер поднимаются одной командой:
 
 ```bash
 docker compose up --build
 ```
 
-Поднимаются три сервиса:
-
 | Сервис | Назначение | Порт |
 |--------|-----------|------|
 | `db` | PostgreSQL | `localhost:5433` |
 | `server` | REST API (Spring Boot) | `localhost:8137` |
-| `ngrok` | Публичный туннель к серверу | домен из `NGROK_DOMAIN` |
 
-При первом старте сервер применяет миграции Flyway (схема, справочники, словарь).
-Документация API доступна по адресу `http://localhost:8137/swagger-ui.html`, а извне —
-по адресу `NGROK_DOMAIN`. Веб-инспектор ngrok — `http://localhost:4040`.
+Документация API — `http://localhost:8137/swagger-ui.html`. Остановка — `docker compose down`
+(с `-v` — с удалением данных базы). Переменные при необходимости задаются в `docker/.env`
+(шаблон — `.env.example`).
 
-Адрес `NGROK_DOMAIN` указывается в мобильном клиенте через `mobile/.env`
-(`EXPO_PUBLIC_API_URL`), после чего приложение работает из любой сети.
+## Продакшн (сервер с публичным HTTPS)
 
-## 3. Остановка
+Конфигурация `docker-compose.prod.yml` поднимает PostgreSQL, сервер и обратный
+прокси Caddy с автоматическим сертификатом Let's Encrypt — сервер становится
+доступен по HTTPS из любой сети.
 
 ```bash
-docker compose down        # с сохранением данных
-docker compose down -v     # с удалением данных базы
+cp .env.prod.example .env     # заполнить SITE_ADDRESS, DB_PASSWORD, JWT_SECRET
+docker compose -f docker-compose.prod.yml up -d --build
 ```
+
+`SITE_ADDRESS` — доменное имя, публично указывающее на IP сервера (Caddy получит для
+него сертификат). При отсутствии собственного домена подойдёт `<IP-сервера>.nip.io`.
+Наружу открыты только порты 80 и 443 (Caddy); сервер и база доступны лишь внутри сети
+Docker.

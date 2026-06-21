@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View, ScrollView } from 'react-native';
 import { useAuth } from '../auth/AuthContext';
-import { styles } from '../theme';
+import { styles, colors } from '../theme';
 
 export default function LoginScreen() {
   const { login, register } = useAuth();
@@ -39,25 +39,33 @@ export default function LoginScreen() {
       {error && <Text style={styles.error}>{error}</Text>}
 
       {isRegister && (
-        <TextInput
-          style={styles.input}
-          placeholder="Имя пользователя"
-          autoCapitalize="none"
-          value={username}
-          onChangeText={setUsername}
-        />
+        <>
+          <Text style={styles.label}>Имя пользователя</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="например, aslan"
+            placeholderTextColor={colors.muted}
+            autoCapitalize="none"
+            value={username}
+            onChangeText={setUsername}
+          />
+        </>
       )}
+      <Text style={styles.label}>Электронная почта</Text>
       <TextInput
         style={styles.input}
-        placeholder="Email"
+        placeholder="например, aslan@mail.ru"
+        placeholderTextColor={colors.muted}
         keyboardType="email-address"
         autoCapitalize="none"
         value={email}
         onChangeText={setEmail}
       />
+      <Text style={styles.label}>Пароль</Text>
       <TextInput
         style={styles.input}
-        placeholder="Пароль"
+        placeholder="введите пароль"
+        placeholderTextColor={colors.muted}
         secureTextEntry
         value={password}
         onChangeText={setPassword}

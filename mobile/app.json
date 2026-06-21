@@ -16,10 +16,19 @@
       "package": "ru.sozoyun"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "ru.sozoyun",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "plugins": [
       "expo-asset"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "cc4a3dcb-1a3f-4a2c-a4d8-9f4fd9dfe53d"
+      }
+    }
   }
 }

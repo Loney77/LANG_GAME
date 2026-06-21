@@ -31,32 +31,36 @@ mobile/
     └── screens/             # 8 экранов
 ```
 
-## Запуск
+## Настройка адреса сервера
 
-1. Установить зависимости:
-   ```bash
-   cd mobile
-   npm install
-   # при несовпадении версий под твой Expo:  npx expo install --fix
-   ```
-2. **Запустить сервер** (см. `../docker/README.md`) — клиент ходит на него по HTTP.
-3. Указать адрес сервера в `src/config.ts` (`API_BASE_URL`) под свой эмулятор:
-   - Android Studio AVD: `http://10.0.2.2:8137`
-   - Genymotion: `http://10.0.3.2:8137`
-   - BlueStacks / реальное устройство: `http://<IP-ПК>:8137`
-4. Запустить приложение:
-   ```bash
-   npx expo start
-   # затем нажать 'a' — откроется на Android-эмуляторе (нужен запущенный AVD
-   # или установленный Expo Go)
-   ```
+Адрес сервера задаётся переменной `EXPO_PUBLIC_API_URL` в файле `.env`
+(шаблон — `.env.example`); код адрес не содержит.
 
-## Проверка типов без запуска
+```bash
+cp .env.example .env        # Windows PowerShell: Copy-Item .env.example .env
+```
+
+Типичные значения: адрес развёрнутого сервера (`https://<домен>`), адрес ПК в
+локальной сети (`http://<IP-ПК>:8137`) или `http://10.0.2.2:8137` для Android-эмулятора.
+
+## Запуск в режиме разработки (Expo)
+
+```bash
+npm install
+npm run android        # либо npm start и сканировать QR в приложении Expo Go
+```
+
+## Сборка APK
+
+```bash
+eas build -p android --profile preview
+```
+
+Команда собирает устанавливаемый APK в облаке Expo и возвращает ссылку на файл.
+Адрес сервера берётся из `.env` на момент сборки.
+
+## Проверка типов
 
 ```bash
 npm run typecheck
 ```
-
-> Это React Native через фреймворк Expo (native-часть собирается автоматически,
-> отдельный Android-проект писать не нужно). AsyncStorage, Axios и React Navigation
-> поддерживаются полностью.

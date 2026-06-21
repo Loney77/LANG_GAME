@@ -68,11 +68,18 @@ export interface CrosswordPuzzleDto {
   clues: CrosswordClue[];
 }
 
+export interface CrosswordSolution {
+  number: number;
+  direction: 'ACROSS' | 'DOWN';
+  answer: string;
+}
+
 export interface CrosswordResult {
   allCorrect: boolean;
   correct: number;
   total: number;
   score: number;
+  solutions: CrosswordSolution[];
 }
 
 export interface LeaderboardEntry {

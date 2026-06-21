@@ -27,7 +27,7 @@ export default function ProfileScreen() {
   return (
     <View style={styles.screen}>
       <Text style={styles.title}>{user?.username}</Text>
-      <Text style={styles.subtitle}>Роль: {user?.role} · Всего очков: {total}</Text>
+      <Text style={styles.subtitle}>Всего очков: {total}</Text>
 
       <Text style={[styles.title, { fontSize: 18 }]}>История игр</Text>
       {loading ? (

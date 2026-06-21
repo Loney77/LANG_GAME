@@ -11,7 +11,7 @@ export default function LeaderboardScreen() {
 
   const load = async () => {
     try {
-      setEntries(await api.leaderboard('SOZDL', 7));
+      setEntries(await api.leaderboard(30));
       setError(null);
     } catch {
       setError('Не удалось загрузить рейтинг');
@@ -26,7 +26,7 @@ export default function LeaderboardScreen() {
 
   return (
     <View style={styles.screen}>
-      <Text style={styles.title}>Рейтинг (Сёздл, неделя)</Text>
+      <Text style={styles.title}>Рейтинг (все игры, месяц)</Text>
       {error && <Text style={styles.error}>{error}</Text>}
       <FlatList
         data={entries}

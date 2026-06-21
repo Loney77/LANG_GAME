@@ -5,9 +5,7 @@ services:
     environment:
       POSTGRES_DB: langgame
       POSTGRES_USER: langgame
-      POSTGRES_PASSWORD: langgame
-    ports:
-      - "5433:5432"
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - langgame-pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -15,6 +13,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    restart: unless-stopped
 
   server:
     build:
@@ -23,18 +22,35 @@ services:
     environment:
       DB_URL: jdbc:postgresql://db:5432/langgame
       DB_USER: langgame
-      DB_PASSWORD: langgame
-      JWT_SECRET: ${JWT_SECRET:-change-me-dev-secret-change-me-dev-secret-32b}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
       SERVER_PORT: "8137"
       # Расширенный словарь подхватывается, если файл смонтирован (иначе — базовый из Flyway).
-      JAVA_TOOL_OPTIONS: "-Dapp.seed.sozluk-file=/data/sozluk.words.json"
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=60 -Dapp.seed.sozluk-file=/data/sozluk.words.json"
     volumes:
       - ../data:/data:ro
-    ports:
-      - "8137:8137"
     depends_on:
       db:
         condition: service_healthy
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: langgame-caddy
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - server
+    restart: unless-stopped
 
 volumes:
   langgame-pgdata:
+  caddy-data:
+  caddy-config:

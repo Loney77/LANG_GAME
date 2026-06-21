@@ -26,7 +26,7 @@
 - **Клиент:** TypeScript, React Native, React Navigation, Axios, AsyncStorage
 - **Сервер:** Java 17, Spring Boot 3, Gradle, Spring Data JPA, Spring Security + JWT, springdoc-openapi
 - **БД:** PostgreSQL (3НФ), Flyway
-- **Тесты:** JUnit 5, Mockito, JaCoCo (покрытие >40%)
+- **Тесты:** JUnit 5, Mockito, JaCoCo
 
 ## Структура репозитория
 
@@ -34,11 +34,9 @@
 .
 ├── server/     # Серверное приложение Spring Boot (PCMEF, REST API)
 ├── mobile/     # Мобильный клиент React Native
-├── frontend/   # Веб-панель администрирования словаря
 ├── data/       # Словарь приложения
 ├── tools/      # Скрипты подготовки словаря
-├── docker/     # Контейнеризация PostgreSQL
-├── scripts/    # Скрипты запуска
+├── docker/     # Контейнеризация серверного стека
 └── docs/       # Проектная документация по этапам (00–12)
 ```
 
@@ -54,34 +52,72 @@
 
 ### Сервер
 
-Весь серверный стек (PostgreSQL, REST API и публичный туннель ngrok) запускается
-в Docker одной командой. Перед первым запуском заполняется `docker/.env`
-(см. `docker/.env.example`).
+PostgreSQL и сервер поднимаются в Docker одной командой:
 
 ```bash
 cd docker
 docker compose up --build
 ```
 
-Документация API (Swagger UI): `http://localhost:8137/swagger-ui.html`; извне
-сервер доступен по адресу из `NGROK_DOMAIN`. Подробнее — в [docker/README.md](docker/README.md).
+Документация API (Swagger UI): `http://localhost:8137/swagger-ui.html`.
+
+Для развёртывания с публичным HTTPS (PostgreSQL + сервер + Caddy с сертификатом
+Let's Encrypt) используется `docker-compose.prod.yml`. Подробнее — в
+[docker/README.md](docker/README.md).
 
 ### Клиент
 
 Адрес сервера задаётся переменной `EXPO_PUBLIC_API_URL` в файле `mobile/.env`
-(см. `mobile/.env.example`); значением выступает домен ngrok, что позволяет
-работать из любой сети.
+(см. `mobile/.env.example`); значением выступает адрес развёрнутого сервера, что
+позволяет работать из любой сети.
+
+Запуск в режиме разработки (Expo):
 
 ```bash
 cd mobile
 npm install
-npm run android
+npm run android        # либо npm start и сканировать QR в Expo Go
 ```
+
+Сборка устанавливаемого APK (Expo Application Services):
+
+```bash
+cd mobile
+eas build -p android --profile preview
+```
+
+Подробнее — в [mobile/README.md](mobile/README.md).
+
+## REST API
+
+Документация OpenAPI доступна в Swagger UI (`/swagger-ui.html`). Основные эндпоинты:
+
+| Метод | Путь | Назначение | Доступ |
+|-------|------|-----------|--------|
+| POST | `/api/auth/register` | Регистрация | — |
+| POST | `/api/auth/login` | Аутентификация (JWT) | — |
+| GET | `/api/words` | Список слов (фильтр по длине/теме) | USER |
+| POST/PUT/DELETE | `/api/words`, `/api/words/{id}` | CRUD словаря | ADMIN |
+| GET | `/api/themes` | Темы | USER |
+| GET | `/api/puzzles/daily` | Ежедневное задание Сёздл | USER |
+| GET | `/api/puzzles/anagram`, `/quiz`, `/crossword` | Задания игр | USER |
+| POST | `/api/games/sozdl/guess` | Проверка догадки Сёздл | USER |
+| POST | `/api/games/{anagram,quiz,crossword}/answer` | Проверка ответа | USER |
+| GET | `/api/leaderboard` | Рейтинг игроков | USER |
+| GET | `/api/sessions/me` | История игр пользователя | USER |
+
+Стандартные коды состояния: 200/201/400/401/403/404.
 
 ## Статистика разработки
 
-- Всего коммитов: _—_
-- Период разработки: _—_
+> Финальные графики GitHub Insights добавляются на момент сдачи в `docs/images/`.
 
-![Активность коммитов](docs/00-project-charter/images/git-commit-activity.png)
-![Распределение по времени](docs/00-project-charter/images/git-punch-card.png)
+- Всего коммитов: _обновить при сдаче_
+- Период разработки: _обновить при сдаче_
+
+![Активность коммитов](docs/images/git-stats-commit-activity.png)
+![Распределение по времени](docs/images/git-stats-punch-card.png)
+
+## Лицензия
+
+Проект распространяется под лицензией MIT — см. [LICENSE](LICENSE).

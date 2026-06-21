@@ -3,6 +3,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Text } from 'react-native';
 import { useAuth } from '../auth/AuthContext';
 import { colors, styles } from '../theme';
 import type { GamesStackParamList, MainTabsParamList } from './types';
@@ -33,9 +34,23 @@ function GamesNavigator() {
   );
 }
 
+const tabIcons: Record<string, string> = {
+  'Игры': '🎮',
+  'Рейтинг': '🏆',
+  'Профиль': '👤',
+};
+
 function MainTabs() {
   return (
-    <Tabs.Navigator screenOptions={{ ...screenHeader, tabBarActiveTintColor: colors.primary }}>
+    <Tabs.Navigator
+      screenOptions={({ route }) => ({
+        ...screenHeader,
+        tabBarActiveTintColor: colors.primary,
+        tabBarIcon: ({ size }) => (
+          <Text style={{ fontSize: size ? size * 0.85 : 20 }}>{tabIcons[route.name] ?? '•'}</Text>
+        ),
+      })}
+    >
       <Tabs.Screen name="Игры" component={GamesNavigator} options={{ headerShown: false }} />
       <Tabs.Screen name="Рейтинг" component={LeaderboardScreen} />
       <Tabs.Screen name="Профиль" component={ProfileScreen} />

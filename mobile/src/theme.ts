@@ -45,6 +45,7 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
   },
+  label: { alignSelf: 'flex-start', color: colors.text, fontSize: 14, fontWeight: '600', marginBottom: 4 },
   link: { color: colors.primary, textAlign: 'center', marginTop: 14, fontSize: 15 },
   error: { color: colors.danger, marginBottom: 10 },
 });

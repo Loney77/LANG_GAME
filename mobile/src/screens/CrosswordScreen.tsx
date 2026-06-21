@@ -18,6 +18,7 @@ export default function CrosswordScreen() {
   const [puzzle, setPuzzle] = useState<CrosswordPuzzleDto | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [result, setResult] = useState<string | null>(null);
+  const [solutions, setSolutions] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,6 +26,7 @@ export default function CrosswordScreen() {
     setLoading(true);
     setAnswers({});
     setResult(null);
+    setSolutions({});
     setError(null);
     try {
       setPuzzle(await api.crossword());
@@ -76,6 +78,9 @@ export default function CrosswordScreen() {
     }));
     try {
       const res = await api.crosswordAnswer(puzzle.puzzleId, payload);
+      const solMap: Record<string, string> = {};
+      for (const s of res.solutions ?? []) solMap[keyOf(s.number, s.direction)] = s.answer;
+      setSolutions(solMap);
       setResult(res.allCorrect
         ? `🎉 Всё верно! ${res.correct}/${res.total}, +${res.score}`
         : `Угадано ${res.correct} из ${res.total}`);
@@ -85,7 +90,7 @@ export default function CrosswordScreen() {
   };
 
   return (
-    <ScrollView style={styles.screen}>
+    <ScrollView style={styles.screen} contentContainerStyle={{ paddingBottom: 96 }}>
       <Text style={[styles.subtitle, { textAlign: 'center' }]}>Сетка {puzzle.rows}×{puzzle.cols}</Text>
 
       {/* Сетка кроссворда */}
@@ -133,6 +138,16 @@ export default function CrosswordScreen() {
             onChangeText={(t) => setAnswers((p) => ({ ...p, [keyOf(c.number, c.direction)]: t }))}
             editable={!result}
           />
+          {result && solutions[keyOf(c.number, c.direction)] && (() => {
+            const correctAnswer = solutions[keyOf(c.number, c.direction)];
+            const ok = (answers[keyOf(c.number, c.direction)] ?? '').trim().toLowerCase()
+              === correctAnswer.toLowerCase();
+            return (
+              <Text style={{ marginTop: 8, color: ok ? colors.correct : colors.danger }}>
+                {ok ? '✓ ' : '✗ '}Ответ: {correctAnswer}
+              </Text>
+            );
+          })()}
         </View>
       ))}
 
