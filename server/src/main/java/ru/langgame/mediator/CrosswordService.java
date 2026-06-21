@@ -81,7 +81,11 @@ public class CrosswordService implements ICrosswordService {
         int total = layout.entries().size();
         boolean allCorrect = correct == total;
         int score = recorder.record(userId, puzzle, allCorrect, 1, 0);
-        return new CrosswordResult(allCorrect, correct, total, score);
+
+        List<CrosswordResult.Solution> solutions = layout.entries().stream()
+                .map(e -> new CrosswordResult.Solution(e.number(), e.direction(), e.answer()))
+                .toList();
+        return new CrosswordResult(allCorrect, correct, total, score, solutions);
     }
 
     private CrosswordLayout buildLayout() {

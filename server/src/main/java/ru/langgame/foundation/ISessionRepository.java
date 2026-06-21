@@ -29,6 +29,17 @@ public interface ISessionRepository extends JpaRepository<GameSession, Long> {
     """)
     List<LeaderboardRow> aggregateTop(String gameTypeCode, Instant since, Pageable pageable);
 
+    /** Топ игроков по сумме очков по всем играм за период. */
+    @Query("""
+        select s.user.username as username, sum(s.score) as total
+        from GameSession s
+        where s.status = ru.langgame.entity.SessionStatus.WIN
+          and s.finishedAt >= :since
+        group by s.user.username
+        order by total desc
+    """)
+    List<LeaderboardRow> aggregateTopAll(Instant since, Pageable pageable);
+
     /** Проекция строки лидерборда. */
     interface LeaderboardRow {
         String getUsername();

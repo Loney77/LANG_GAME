@@ -24,8 +24,8 @@ public class LeaderboardController {
     @GetMapping
     @Operation(summary = "Топ игроков за период")
     public List<LeaderboardEntry> top(
-            @RequestParam(defaultValue = "SOZDL") String gameType,
-            @RequestParam(defaultValue = "7") int days,
+            @RequestParam(required = false) String gameType,
+            @RequestParam(defaultValue = "30") int days,
             @RequestParam(defaultValue = "20") int limit) {
         return leaderboardService.top(gameType, days, limit);
     }

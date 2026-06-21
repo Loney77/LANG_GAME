@@ -21,7 +21,10 @@ public class LeaderboardService implements ILeaderboardService {
     @Override
     public List<LeaderboardEntry> top(String gameTypeCode, int days, int limit) {
         Instant since = Instant.now().minus(Duration.ofDays(Math.max(1, days)));
-        var rows = sessions.aggregateTop(gameTypeCode, since, PageRequest.of(0, Math.max(1, limit)));
+        var pageable = PageRequest.of(0, Math.max(1, limit));
+        var rows = (gameTypeCode == null || gameTypeCode.isBlank())
+                ? sessions.aggregateTopAll(since, pageable)
+                : sessions.aggregateTop(gameTypeCode, since, pageable);
 
         List<LeaderboardEntry> result = new ArrayList<>();
         int rank = 1;
