@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameSessionRecorder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lang-game</a> &gt; <a href="index.source.html" class="el_package">ru.langgame.mediator</a> &gt; <span class="el_source">GameSessionRecorder.java</span></div><h1>GameSessionRecorder.java</h1><pre class="source lang-java linenums">package ru.langgame.mediator;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import ru.langgame.entity.GameSession;
+import ru.langgame.entity.Puzzle;
+import ru.langgame.entity.SessionStatus;
+import ru.langgame.foundation.ISessionRepository;
+import ru.langgame.foundation.IUserRepository;
+
+/**
+ * Запись результата одноходовых игр (анаграмма, викторина, кроссворд).
+ *
+ * &lt;p&gt;Очки считаются на сервере через {@link ScoringService}; клиент очки не присылает.&lt;/p&gt;
+ */
+@Component
+@RequiredArgsConstructor
+public class GameSessionRecorder {
+
+    private final ISessionRepository sessions;
+    private final IUserRepository users;
+    private final ScoringService scoring;
+
+    /**
+     * Создаёт завершённую сессию.
+     *
+     * @return начисленные очки
+     */
+    public int record(Long userId, Puzzle puzzle, boolean win, int attempts, long durationMs) {
+<span class="nc" id="L30">        int points = scoring.score(attempts, durationMs, win);</span>
+<span class="nc" id="L31">        GameSession session = new GameSession();</span>
+<span class="nc" id="L32">        session.setUser(users.getReferenceById(userId));</span>
+<span class="nc" id="L33">        session.setPuzzle(puzzle);</span>
+<span class="nc" id="L34">        session.setAttempts(Math.max(1, attempts));</span>
+<span class="nc" id="L35">        session.setDurationMs(durationMs);</span>
+<span class="nc bnc" id="L36" title="All 2 branches missed.">        session.finish(win ? SessionStatus.WIN : SessionStatus.LOSS, points);</span>
+<span class="nc" id="L37">        sessions.save(session);</span>
+<span class="nc" id="L38">        return points;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

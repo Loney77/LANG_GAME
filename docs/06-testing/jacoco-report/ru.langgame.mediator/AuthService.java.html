@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lang-game</a> &gt; <a href="index.source.html" class="el_package">ru.langgame.mediator</a> &gt; <span class="el_source">AuthService.java</span></div><h1>AuthService.java</h1><pre class="source lang-java linenums">package ru.langgame.mediator;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.langgame.config.JwtService;
+import ru.langgame.entity.Role;
+import ru.langgame.entity.User;
+import ru.langgame.foundation.IUserRepository;
+import ru.langgame.mediator.dto.AuthResponse;
+import ru.langgame.mediator.dto.LoginRequest;
+import ru.langgame.mediator.dto.RegisterRequest;
+import ru.langgame.mediator.exception.ConflictException;
+import ru.langgame.mediator.exception.UnauthorizedException;
+
+/** Аутентификация: регистрация, вход, выдача JWT. */
+@Service
+@RequiredArgsConstructor
+public class AuthService implements IAuthService {
+
+    private final IUserRepository users;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+
+    @Override
+    @Transactional
+    public AuthResponse register(RegisterRequest request) {
+<span class="fc bfc" id="L29" title="All 2 branches covered.">        if (users.existsByEmail(request.email())) {</span>
+<span class="fc" id="L30">            throw new ConflictException(&quot;Email уже занят&quot;);</span>
+        }
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        if (users.existsByUsername(request.username())) {</span>
+<span class="fc" id="L33">            throw new ConflictException(&quot;Имя пользователя уже занято&quot;);</span>
+        }
+<span class="fc" id="L35">        User user = new User();</span>
+<span class="fc" id="L36">        user.setUsername(request.username());</span>
+<span class="fc" id="L37">        user.setEmail(request.email());</span>
+<span class="fc" id="L38">        user.setPasswordHash(passwordEncoder.encode(request.password()));</span>
+<span class="fc" id="L39">        user.setRole(Role.USER);</span>
+<span class="fc" id="L40">        user = users.save(user);</span>
+<span class="fc" id="L41">        return new AuthResponse(jwtService.generate(user), user.getUsername(), user.getRole().name());</span>
+    }
+
+    @Override
+    public AuthResponse login(LoginRequest request) {
+<span class="fc" id="L46">        User user = users.findByEmail(request.email())</span>
+<span class="fc" id="L47">                .orElseThrow(() -&gt; new UnauthorizedException(&quot;Неверный email или пароль&quot;));</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {</span>
+<span class="fc" id="L49">            throw new UnauthorizedException(&quot;Неверный email или пароль&quot;);</span>
+        }
+<span class="fc" id="L51">        return new AuthResponse(jwtService.generate(user), user.getUsername(), user.getRole().name());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CrosswordService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lang-game</a> &gt; <a href="index.source.html" class="el_package">ru.langgame.mediator</a> &gt; <span class="el_source">CrosswordService.java</span></div><h1>CrosswordService.java</h1><pre class="source lang-java linenums">package ru.langgame.mediator;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.langgame.entity.GameType;
+import ru.langgame.entity.Puzzle;
+import ru.langgame.entity.TranslationText;
+import ru.langgame.foundation.IGameTypeRepository;
+import ru.langgame.foundation.IPuzzleRepository;
+import ru.langgame.foundation.IWordRepository;
+import ru.langgame.mediator.crossword.CrosswordEntry;
+import ru.langgame.mediator.crossword.CrosswordGenerator;
+import ru.langgame.mediator.crossword.CrosswordLayout;
+import ru.langgame.mediator.dto.CrosswordAnswerRequest;
+import ru.langgame.mediator.dto.CrosswordPuzzleDto;
+import ru.langgame.mediator.dto.CrosswordResult;
+import ru.langgame.mediator.exception.NotFoundException;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+/** Игра «Кроссворд»: автогенерация сетки и проверка заполнения. */
+@Service
+@RequiredArgsConstructor
+public class CrosswordService implements ICrosswordService {
+
+    private static final String CROSSWORD = &quot;CROSSWORD&quot;;
+    private static final int MAX_WORDS = 8;
+    private static final int POOL = 120;
+    private static final int ATTEMPTS = 4;
+
+    private final IWordRepository words;
+    private final IPuzzleRepository puzzles;
+    private final IGameTypeRepository gameTypes;
+    private final GameSessionRecorder recorder;
+    private final ObjectMapper objectMapper;
+
+    @Override
+    @Transactional
+    public CrosswordPuzzleDto newPuzzle() {
+<span class="nc" id="L44">        CrosswordLayout layout = buildLayout();</span>
+
+<span class="nc" id="L46">        GameType type = gameTypes.findByCode(CROSSWORD)</span>
+<span class="nc" id="L47">                .orElseThrow(() -&gt; new NotFoundException(&quot;Тип игры CROSSWORD не найден&quot;));</span>
+<span class="nc" id="L48">        Puzzle puzzle = new Puzzle();</span>
+<span class="nc" id="L49">        puzzle.setGameType(type);</span>
+<span class="nc" id="L50">        puzzle.setPayload(write(layout));</span>
+<span class="nc" id="L51">        puzzle = puzzles.save(puzzle);</span>
+
+<span class="nc" id="L53">        List&lt;CrosswordPuzzleDto.Clue&gt; clues = layout.entries().stream()</span>
+<span class="nc" id="L54">                .map(e -&gt; new CrosswordPuzzleDto.Clue(</span>
+<span class="nc" id="L55">                        e.number(), e.direction(), e.row(), e.col(), e.length(), e.clue()))</span>
+<span class="nc" id="L56">                .toList();</span>
+<span class="nc" id="L57">        return new CrosswordPuzzleDto(puzzle.getId(), layout.rows(), layout.cols(), clues);</span>
+    }
+
+    @Override
+    @Transactional
+    public CrosswordResult check(CrosswordAnswerRequest request, Long userId) {
+<span class="nc" id="L63">        Puzzle puzzle = puzzles.findById(request.puzzleId())</span>
+<span class="nc" id="L64">                .orElseThrow(() -&gt; new NotFoundException(&quot;Задание не найдено: &quot; + request.puzzleId()));</span>
+<span class="nc" id="L65">        CrosswordLayout layout = read(puzzle.getPayload());</span>
+
+<span class="nc" id="L67">        Map&lt;String, String&gt; submitted = new java.util.HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (request.answers() != null) {</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">            for (var a : request.answers()) {</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">                submitted.put(key(a.number(), a.direction()), a.answer() == null ? &quot;&quot; : a.answer().strip());</span>
+<span class="nc" id="L71">            }</span>
+        }
+
+<span class="nc" id="L74">        int correct = 0;</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        for (CrosswordEntry e : layout.entries()) {</span>
+<span class="nc" id="L76">            String given = submitted.get(key(e.number(), e.direction()));</span>
+<span class="nc bnc" id="L77" title="All 4 branches missed.">            if (given != null &amp;&amp; given.equalsIgnoreCase(e.answer())) {</span>
+<span class="nc" id="L78">                correct++;</span>
+            }
+<span class="nc" id="L80">        }</span>
+<span class="nc" id="L81">        int total = layout.entries().size();</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        boolean allCorrect = correct == total;</span>
+<span class="nc" id="L83">        int score = recorder.record(userId, puzzle, allCorrect, 1, 0);</span>
+
+<span class="nc" id="L85">        List&lt;CrosswordResult.Solution&gt; solutions = layout.entries().stream()</span>
+<span class="nc" id="L86">                .map(e -&gt; new CrosswordResult.Solution(e.number(), e.direction(), e.answer()))</span>
+<span class="nc" id="L87">                .toList();</span>
+<span class="nc" id="L88">        return new CrosswordResult(allCorrect, correct, total, score, solutions);</span>
+    }
+
+    private CrosswordLayout buildLayout() {
+<span class="nc" id="L92">        IllegalStateException last = null;</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        for (int attempt = 0; attempt &lt; ATTEMPTS; attempt++) {</span>
+<span class="nc" id="L94">            List&lt;CrosswordGenerator.Candidate&gt; candidates = words.findRandomInLengthRange(3, 9, POOL)</span>
+<span class="nc" id="L95">                    .stream()</span>
+<span class="nc" id="L96">                    .filter(w -&gt; TranslationText.isQuizSuitable(w.getText(), w.getTranslation()))</span>
+<span class="nc" id="L97">                    .map(w -&gt; new CrosswordGenerator.Candidate(</span>
+<span class="nc" id="L98">                            w.getText(), chars(w.getText()),</span>
+<span class="nc" id="L99">                            TranslationText.clean(w.getTranslation())))</span>
+<span class="nc" id="L100">                    .collect(Collectors.toList());</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">            if (candidates.size() &lt; 2) {</span>
+<span class="nc" id="L102">                continue;</span>
+            }
+            try {
+<span class="nc" id="L105">                return CrosswordGenerator.generate(candidates, MAX_WORDS);</span>
+<span class="nc" id="L106">            } catch (IllegalStateException ex) {</span>
+<span class="nc" id="L107">                last = ex;</span>
+            }
+        }
+<span class="nc" id="L110">        throw new NotFoundException(&quot;Не удалось сгенерировать кроссворд: &quot;</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                + (last != null ? last.getMessage() : &quot;недостаточно слов&quot;));</span>
+    }
+
+    /** Разбивает слово на отдельные символы (диграфы = 2 клетки). */
+    private static List&lt;String&gt; chars(String word) {
+<span class="nc" id="L116">        return word.codePoints().mapToObj(Character::toString).collect(Collectors.toList());</span>
+    }
+
+    private static String key(int number, String direction) {
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        return number + &quot;:&quot; + (direction == null ? &quot;&quot; : direction.toUpperCase());</span>
+    }
+
+    private String write(CrosswordLayout layout) {
+        try {
+<span class="nc" id="L125">            return objectMapper.writeValueAsString(layout);</span>
+<span class="nc" id="L126">        } catch (Exception e) {</span>
+<span class="nc" id="L127">            throw new IllegalStateException(&quot;Ошибка сериализации кроссворда&quot;, e);</span>
+        }
+    }
+
+    private CrosswordLayout read(String payload) {
+        try {
+<span class="nc" id="L133">            return objectMapper.readValue(payload, CrosswordLayout.class);</span>
+<span class="nc" id="L134">        } catch (Exception e) {</span>
+<span class="nc" id="L135">            throw new IllegalStateException(&quot;Ошибка чтения кроссворда&quot;, e);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -27,6 +27,8 @@ end note
 @enduml
 ```
 
+![Диаграмма зависимостей PCMEF](diagrams/dependency-diagram.png)
+
 ## Матрица зависимостей
 
 | Из \ В | control | mediator | entity | foundation | config |

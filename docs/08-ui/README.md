@@ -41,8 +41,38 @@ Presentation-слой PCMEF — мобильное приложение на **R
 ## Запуск и проверка
 
 - Инструкции: [`mobile/README.md`](../../mobile/README.md).
-- Базовый URL сервера — `src/config.ts` (для Android Studio AVD `http://10.0.2.2:8137`).
+- Базовый URL сервера задаётся переменной `EXPO_PUBLIC_API_URL` (`mobile/.env`).
 - **Проверка типов:** `npm run typecheck` (`tsc --noEmit`) — проходит без ошибок.
-- Запуск на эмуляторе: `npx expo start` → `a`.
+- Запуск: `npx expo start` (Expo Go) либо установка APK.
 
-> Скриншоты экранов на момент сдачи складываются в `mobile/` (этой папки docs).
+## Скриншоты
+
+### Вход и регистрация
+![Вход](mobile/01-login.jpg)
+![Регистрация](mobile/02-register.jpg)
+
+### Главное меню
+![Главная](mobile/03-home.jpg)
+
+### Сёздл
+![Сёздл — ход игры](mobile/04-sozdl-in-progress.jpg)
+![Сёздл — победа](mobile/05-sozdl-win.jpg)
+
+### Анаграмма
+![Анаграмма](mobile/06-anagram.jpg)
+![Анаграмма — верно](mobile/07-anagram-win.jpg)
+![Анаграмма — неверно](mobile/08-anagram-lose.jpg)
+
+### Викторина
+![Викторина](mobile/09-quiz.jpg)
+![Викторина — верно](mobile/10-quiz-win.jpg)
+![Викторина — неверно](mobile/11-quiz-lose.jpg)
+
+### Кроссворд
+![Кроссворд — сетка](mobile/12-crossword-top.jpg)
+![Кроссворд — заполнение](mobile/13-crossword-unchecked.jpg)
+![Кроссворд — проверка с правильными ответами](mobile/14-crossword-checked.jpg)
+
+### Рейтинг и профиль
+![Рейтинг](mobile/15-leaderboard.jpg)
+![Профиль](mobile/16-profile.jpg)

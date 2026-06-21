@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SozlukSeedLoader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lang-game</a> &gt; <a href="index.source.html" class="el_package">ru.langgame.config</a> &gt; <span class="el_source">SozlukSeedLoader.java</span></div><h1>SozlukSeedLoader.java</h1><pre class="source lang-java linenums">package ru.langgame.config;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.stereotype.Component;
+import ru.langgame.entity.AlphabetTokenizer;
+import ru.langgame.entity.Word;
+import ru.langgame.foundation.IWordRepository;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+/**
+ * Dev-загрузчик расширенного словаря (Сёзлюк) из локального JSON.
+ *
+ * &lt;p&gt;Данные источника НЕ хранятся в репозитории. Если файл существует рядом и в БД
+ * только базовый seed — слова догружаются (идемпотентно, без дублей по написанию).
+ * На машинах без файла загрузчик ничего не делает.&lt;/p&gt;
+ */
+@Component
+@RequiredArgsConstructor
+<span class="nc" id="L32">@Slf4j</span>
+public class SozlukSeedLoader implements ApplicationRunner {
+
+    private static final long BASELINE_THRESHOLD = 1000;   // выше — считаем, что уже загружено
+    private static final int BATCH = 1000;
+    private static final int MAX_TRANSLATION = 255;
+
+    private final IWordRepository words;
+    private final ObjectMapper objectMapper;
+
+    @Value(&quot;${app.seed.sozluk-file:../data/sozluk.words.json}&quot;)
+    private String sozlukFile;
+
+    @Value(&quot;${app.seed.enabled:true}&quot;)
+    private boolean enabled;
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+<span class="nc" id="L49">    record SozlukWord(String text, String translation) {</span>
+    }
+
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (!enabled) {</span>
+<span class="nc" id="L55">            return;</span>
+        }
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        if (words.count() &gt; BASELINE_THRESHOLD) {</span>
+<span class="nc" id="L58">            log.info(&quot;Словарь уже наполнен ({} слов) — пропускаю загрузку Сёзлюка&quot;, words.count());</span>
+<span class="nc" id="L59">            return;</span>
+        }
+<span class="nc" id="L61">        Path path = Path.of(sozlukFile);</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (!Files.exists(path)) {</span>
+<span class="nc" id="L63">            log.info(&quot;Файл {} не найден — расширенный словарь не загружается (ок для CI/чужих машин)&quot;, path);</span>
+<span class="nc" id="L64">            return;</span>
+        }
+
+<span class="nc" id="L67">        SozlukWord[] all = objectMapper.readValue(path.toFile(), SozlukWord[].class);</span>
+<span class="nc" id="L68">        Set&lt;String&gt; existing = words.findAll().stream()</span>
+<span class="nc" id="L69">                .map(w -&gt; w.getText().toLowerCase(Locale.ROOT))</span>
+<span class="nc" id="L70">                .collect(Collectors.toSet());</span>
+
+<span class="nc" id="L72">        List&lt;Word&gt; batch = new ArrayList&lt;&gt;(BATCH);</span>
+<span class="nc" id="L73">        int inserted = 0;</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        for (SozlukWord rec : all) {</span>
+<span class="nc bnc" id="L75" title="All 4 branches missed.">            if (rec.text() == null || rec.translation() == null) {</span>
+<span class="nc" id="L76">                continue;</span>
+            }
+<span class="nc" id="L78">            String key = rec.text().toLowerCase(Locale.ROOT);</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">            if (!existing.add(key)) {     // уже есть (baseline или дубль) — пропускаем</span>
+<span class="nc" id="L80">                continue;</span>
+            }
+<span class="nc" id="L82">            Word word = new Word();</span>
+<span class="nc" id="L83">            word.setText(rec.text());</span>
+<span class="nc" id="L84">            word.setTranslation(truncate(rec.translation()));</span>
+<span class="nc" id="L85">            word.setLetterCount(AlphabetTokenizer.letterCount(rec.text()));</span>
+<span class="nc" id="L86">            batch.add(word);</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">            if (batch.size() &gt;= BATCH) {</span>
+<span class="nc" id="L88">                words.saveAll(batch);</span>
+<span class="nc" id="L89">                inserted += batch.size();</span>
+<span class="nc" id="L90">                batch.clear();</span>
+            }
+        }
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (!batch.isEmpty()) {</span>
+<span class="nc" id="L94">            words.saveAll(batch);</span>
+<span class="nc" id="L95">            inserted += batch.size();</span>
+        }
+<span class="nc" id="L97">        log.info(&quot;Загрузка Сёзлюка завершена: добавлено {} слов (всего в БД: {})&quot;, inserted, words.count());</span>
+<span class="nc" id="L98">    }</span>
+
+    private static String truncate(String s) {
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        return s.length() &gt; MAX_TRANSLATION ? s.substring(0, MAX_TRANSLATION) : s;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

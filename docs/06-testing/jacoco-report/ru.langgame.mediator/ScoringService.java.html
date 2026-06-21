@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ScoringService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lang-game</a> &gt; <a href="index.source.html" class="el_package">ru.langgame.mediator</a> &gt; <span class="el_source">ScoringService.java</span></div><h1>ScoringService.java</h1><pre class="source lang-java linenums">package ru.langgame.mediator;
+
+import org.springframework.stereotype.Service;
+
+/**
+ * Подсчёт очков за игру (бизнес-логика Mediator).
+ *
+ * &lt;p&gt;Очки начисляются только за победу; чем меньше попыток и быстрее — тем больше.
+ * Подсчёт выполняется на сервере (анти-чит): клиент не присылает очки.&lt;/p&gt;
+ */
+@Service
+<span class="fc" id="L12">public class ScoringService {</span>
+
+    static final int BASE = 100;
+    static final int ATTEMPT_PENALTY = 10;
+    static final int MIN_WIN = 10;
+    static final int MAX_TIME_PENALTY = 50;
+    /** 1 балл штрафа за каждые 10 секунд. */
+    static final long MS_PER_TIME_PENALTY = 10_000L;
+
+    /**
+     * @param attempts   число использованных попыток (≥ 1 при победе)
+     * @param durationMs длительность партии в миллисекундах
+     * @param win        победа или нет
+     * @return неотрицательное число очков
+     */
+    public int score(int attempts, long durationMs, boolean win) {
+<span class="fc bfc" id="L28" title="All 2 branches covered.">        if (!win) {</span>
+<span class="fc" id="L29">            return 0;</span>
+        }
+<span class="fc" id="L31">        long timePenalty = Math.min(MAX_TIME_PENALTY, Math.max(0, durationMs) / MS_PER_TIME_PENALTY);</span>
+<span class="fc" id="L32">        int raw = BASE - (Math.max(1, attempts) - 1) * ATTEMPT_PENALTY - (int) timePenalty;</span>
+<span class="fc" id="L33">        return Math.max(raw, MIN_WIN);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

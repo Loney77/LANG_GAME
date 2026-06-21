@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnagramService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lang-game</a> &gt; <a href="index.source.html" class="el_package">ru.langgame.mediator</a> &gt; <span class="el_source">AnagramService.java</span></div><h1>AnagramService.java</h1><pre class="source lang-java linenums">package ru.langgame.mediator;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.langgame.entity.GameType;
+import ru.langgame.entity.Puzzle;
+import ru.langgame.entity.TranslationText;
+import ru.langgame.entity.Word;
+import ru.langgame.foundation.IGameTypeRepository;
+import ru.langgame.foundation.IPuzzleRepository;
+import ru.langgame.foundation.IWordRepository;
+import ru.langgame.mediator.dto.AnagramPuzzleDto;
+import ru.langgame.mediator.dto.AnswerResult;
+import ru.langgame.mediator.exception.NotFoundException;
+
+import java.util.Random;
+
+/** Игра «Анаграммы»: собрать слово из перемешанных букв. */
+@Service
+@RequiredArgsConstructor
+public class AnagramService implements IAnagramService {
+
+    private static final String ANAGRAM = &quot;ANAGRAM&quot;;
+    private static final int MIN_LEN = 4;
+    private static final int MAX_LEN = 8;
+
+    private final IWordRepository words;
+    private final IPuzzleRepository puzzles;
+    private final IGameTypeRepository gameTypes;
+    private final GameSessionRecorder recorder;
+    private final Random random = new Random();
+
+    @Override
+    @Transactional
+    public AnagramPuzzleDto newPuzzle(int length) {
+<span class="nc" id="L37">        int len = Math.min(MAX_LEN, Math.max(MIN_LEN, length));</span>
+<span class="nc" id="L38">        Word target = pickSuitable(len);</span>
+<span class="nc" id="L39">        GameType type = gameTypes.findByCode(ANAGRAM)</span>
+<span class="nc" id="L40">                .orElseThrow(() -&gt; new NotFoundException(&quot;Тип игры ANAGRAM не найден&quot;));</span>
+
+<span class="nc" id="L42">        Puzzle puzzle = new Puzzle();</span>
+<span class="nc" id="L43">        puzzle.setGameType(type);</span>
+<span class="nc" id="L44">        puzzle.setWord(target);</span>
+<span class="nc" id="L45">        puzzle = puzzles.save(puzzle);</span>
+
+<span class="nc" id="L47">        var letters = AnagramShuffler.shuffle(target.getText(), random);</span>
+<span class="nc" id="L48">        String hint = TranslationText.clean(target.getTranslation());</span>
+<span class="nc" id="L49">        return new AnagramPuzzleDto(puzzle.getId(), letters, letters.size(), hint);</span>
+    }
+
+    /** Слово заданной длины с осмысленным («годным») переводом. */
+    private Word pickSuitable(int len) {
+<span class="nc" id="L54">        Word fallback = null;</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        for (int i = 0; i &lt; 12; i++) {</span>
+<span class="nc" id="L56">            Word w = words.findRandomByLetterCount(len).orElse(null);</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">            if (w == null) {</span>
+<span class="nc" id="L58">                break;</span>
+            }
+<span class="nc" id="L60">            fallback = w;</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">            if (TranslationText.isQuizSuitable(w.getText(), w.getTranslation())) {</span>
+<span class="nc" id="L62">                return w;</span>
+            }
+        }
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (fallback == null) {</span>
+<span class="nc" id="L66">            throw new NotFoundException(&quot;Нет слов длины &quot; + len);</span>
+        }
+<span class="nc" id="L68">        return fallback;</span>
+    }
+
+    @Override
+    @Transactional
+    public AnswerResult answer(Long puzzleId, String answer, Long userId) {
+<span class="fc" id="L74">        Puzzle puzzle = puzzles.findById(puzzleId)</span>
+<span class="fc" id="L75">                .orElseThrow(() -&gt; new NotFoundException(&quot;Задание не найдено: &quot; + puzzleId));</span>
+<span class="fc" id="L76">        Word target = puzzle.getWord();</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">        boolean correct = target != null</span>
+<span class="pc bpc" id="L78" title="1 of 4 branches missed.">                &amp;&amp; target.getText().equalsIgnoreCase(answer == null ? &quot;&quot; : answer.strip());</span>
+<span class="fc" id="L79">        int score = recorder.record(userId, puzzle, correct, 1, 0);</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        return new AnswerResult(correct, score, target != null ? target.getText() : null);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

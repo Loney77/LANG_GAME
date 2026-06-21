@@ -1,17 +1,26 @@
 # Тестирование и покрытие
 
-Сопровождает Этап 5 (реализация ядра). Модульное тестирование на JUnit 5 + Mockito,
-покрытие — JaCoCo.
+Модульное тестирование на JUnit 5 + Mockito, покрытие — JaCoCo.
 
 ## Тест-классы
 
 | Класс | Что проверяет |
 |-------|---------------|
-| `AlphabetTokenizerTest` | токенизация, диграфы, длина, регистр, null |
-| `LetterMatcherTest` | подсветка CORRECT/PRESENT/ABSENT, повторы, диграфы |
+| `AlphabetTokenizerTest` | токенизация по алфавиту, диграфы, длина, регистр, null |
+| `LetterMatcherTest` | подсветка CORRECT/PRESENT/ABSENT, повторы букв, диграфы |
 | `ScoringServiceTest` | подсчёт очков: проигрыш, штрафы, минимум, неотрицательность |
-| `SozdlServiceTest` | сценарии Сёздл (Mockito): not-found, длина, словарь, победа |
-| `WordMapperTest` | маппинг Entity → DTO |
+| `SozdlServiceTest` | сценарии Сёздл (Mockito): not-found, длина, словарь, победа, продолжение |
+| `AnagramServiceTest` | проверка ответа анаграммы (Mockito): верно/неверно, not-found |
+| `AnagramShufflerTest` | перемешивание букв с учётом диграфов |
+| `CrosswordGeneratorTest` | генерация сетки, пересечения слов |
+| `LeaderboardServiceTest` | агрегация рейтинга: все игры / по типу (Mockito) |
+| `WordServiceTest` | CRUD словаря, поиск, конфликты, темы (Mockito) |
+| `AuthServiceTest` | регистрация, вход, занятый email/имя, неверный пароль |
+| `PuzzleServiceTest` | ежедневное задание Сёздл: существующее/создание/нет слов |
+| `QuizServiceTest` | формирование вопроса и проверка ответа викторины |
+| `WordMapperTest` | маппинг Entity → DTO (Data Mapper) |
+| `TranslationTextTest` | чистка переводов и отбор пригодных для викторины |
+| `WordTest`, `GameSessionTest`, `PuzzleTest` | доменные методы сущностей |
 
 ## Запуск
 
@@ -23,13 +32,12 @@ cd server
 
 ## Результаты покрытия (JaCoCo)
 
-| Метрика | Значение |
+| Метрика | Покрытие |
 |---------|----------|
-| **LINE** | **91,3 %** (порог методички > 40%) |
-| INSTRUCTION | 90,1 % |
-| BRANCH | 75,0 % |
+| **LINE** | **60,8 %** (порог методички — > 40%) |
+| INSTRUCTION | 62,8 % |
+| BRANCH | 67,6 % |
 
-Отчёты: `build/reports/tests/test/index.html`, `build/reports/jacoco/test/html/index.html`.
-Геттеры/сеттеры Lombok исключены из покрытия (`@Generated`).
-
-> Скриншоты HTML-отчётов на момент сдачи складываются в `jacoco-report/`.
+Полный HTML-отчёт — в [jacoco-report/index.html](jacoco-report/index.html)
+(машиночитаемый — `jacoco-report/jacocoTestReport.xml`). Геттеры и сеттеры Lombok
+исключены из подсчёта (`@Generated`).

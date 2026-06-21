@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuizService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lang-game</a> &gt; <a href="index.source.html" class="el_package">ru.langgame.mediator</a> &gt; <span class="el_source">QuizService.java</span></div><h1>QuizService.java</h1><pre class="source lang-java linenums">package ru.langgame.mediator;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.langgame.entity.*;
+import ru.langgame.foundation.*;
+import ru.langgame.mediator.dto.QuizAnswerResult;
+import ru.langgame.mediator.dto.QuizQuestionDto;
+import ru.langgame.mediator.exception.NotFoundException;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+/** Игра «Викторина»: выбрать правильный перевод слова из 4 вариантов. */
+@Service
+@RequiredArgsConstructor
+public class QuizService implements IQuizService {
+
+    private static final String QUIZ = &quot;QUIZ&quot;;
+    private static final int OPTIONS = 4;
+
+    private final IWordRepository words;
+    private final IPuzzleRepository puzzles;
+    private final IGameTypeRepository gameTypes;
+    private final IQuizQuestionRepository questions;
+    private final IQuizOptionRepository options;
+    private final GameSessionRecorder recorder;
+
+    @Override
+    @Transactional
+    public QuizQuestionDto newQuestion() {
+<span class="fc" id="L36">        List&lt;Word&gt; picked = pickDistinct(OPTIONS);</span>
+<span class="fc" id="L37">        Word correct = picked.get(0);</span>
+
+<span class="fc" id="L39">        GameType type = gameTypes.findByCode(QUIZ)</span>
+<span class="pc" id="L40">                .orElseThrow(() -&gt; new NotFoundException(&quot;Тип игры QUIZ не найден&quot;));</span>
+<span class="fc" id="L41">        Puzzle puzzle = new Puzzle();</span>
+<span class="fc" id="L42">        puzzle.setGameType(type);</span>
+<span class="fc" id="L43">        puzzle.setWord(correct);</span>
+<span class="fc" id="L44">        puzzle = puzzles.save(puzzle);</span>
+
+<span class="fc" id="L46">        QuizQuestion question = new QuizQuestion();</span>
+<span class="fc" id="L47">        question.setPuzzle(puzzle);</span>
+<span class="fc" id="L48">        question.setQuestionText(&quot;Что означает слово «&quot; + correct.getText() + &quot;»?&quot;);</span>
+<span class="fc" id="L49">        question.setCorrectWord(correct);</span>
+<span class="fc" id="L50">        question = questions.save(question);</span>
+
+<span class="fc" id="L52">        List&lt;QuizOption&gt; opts = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        for (Word w : picked) {</span>
+<span class="fc" id="L54">            QuizOption opt = new QuizOption();</span>
+<span class="fc" id="L55">            opt.setQuestion(question);</span>
+<span class="fc" id="L56">            opt.setOptionText(TranslationText.clean(w.getTranslation()));</span>
+<span class="fc" id="L57">            opt.setCorrect(w.getId().equals(correct.getId()));</span>
+<span class="fc" id="L58">            opts.add(opt);</span>
+<span class="fc" id="L59">        }</span>
+<span class="fc" id="L60">        Collections.shuffle(opts);</span>
+<span class="fc" id="L61">        options.saveAll(opts);</span>
+
+<span class="fc" id="L63">        List&lt;QuizQuestionDto.Option&gt; dto = opts.stream()</span>
+<span class="fc" id="L64">                .map(o -&gt; new QuizQuestionDto.Option(o.getId(), o.getOptionText()))</span>
+<span class="fc" id="L65">                .toList();</span>
+<span class="fc" id="L66">        return new QuizQuestionDto(question.getId(), question.getQuestionText(), dto);</span>
+    }
+
+    @Override
+    @Transactional
+    public QuizAnswerResult answer(Long questionId, Long optionId, Long userId) {
+<span class="fc" id="L72">        QuizQuestion question = questions.findById(questionId)</span>
+<span class="fc" id="L73">                .orElseThrow(() -&gt; new NotFoundException(&quot;Вопрос не найден: &quot; + questionId));</span>
+<span class="fc" id="L74">        List&lt;QuizOption&gt; opts = options.findByQuestion_Id(questionId);</span>
+<span class="fc" id="L75">        Long correctId = opts.stream().filter(QuizOption::isCorrect)</span>
+<span class="fc" id="L76">                .map(QuizOption::getId).findFirst().orElse(null);</span>
+<span class="pc bpc" id="L77" title="1 of 4 branches missed.">        boolean correct = optionId != null &amp;&amp; optionId.equals(correctId);</span>
+
+<span class="fc" id="L79">        int score = recorder.record(userId, question.getPuzzle(), correct, 1, 0);</span>
+<span class="fc" id="L80">        return new QuizAnswerResult(correct, correctId, score);</span>
+    }
+
+    /** Выбирает n «чистых» слов с различными переводами (correct = первый). */
+    private List&lt;Word&gt; pickDistinct(int n) {
+<span class="fc" id="L85">        Map&lt;String, Word&gt; byTranslation = new LinkedHashMap&lt;&gt;();</span>
+<span class="pc bpc" id="L86" title="1 of 4 branches missed.">        for (int attempt = 0; attempt &lt; 8 &amp;&amp; byTranslation.size() &lt; n; attempt++) {</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">            for (Word w : words.findRandom(n * 8)) {</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">                if (!TranslationText.isQuizSuitable(w.getText(), w.getTranslation())) {</span>
+<span class="nc" id="L89">                    continue;   // пропускаем перекрёстные ссылки и заимствования</span>
+                }
+<span class="fc" id="L91">                String key = TranslationText.clean(w.getTranslation()).toLowerCase();</span>
+<span class="fc" id="L92">                byTranslation.putIfAbsent(key, w);</span>
+<span class="fc" id="L93">            }</span>
+        }
+<span class="fc" id="L95">        List&lt;Word&gt; result = new ArrayList&lt;&gt;(byTranslation.values());</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">        if (result.size() &lt; n) {</span>
+<span class="nc" id="L97">            throw new NotFoundException(&quot;Недостаточно слов для викторины&quot;);</span>
+        }
+<span class="fc" id="L99">        return result.subList(0, n);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

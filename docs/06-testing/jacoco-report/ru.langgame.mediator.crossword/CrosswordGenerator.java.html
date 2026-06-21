@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CrosswordGenerator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lang-game</a> &gt; <a href="index.source.html" class="el_package">ru.langgame.mediator.crossword</a> &gt; <span class="el_source">CrosswordGenerator.java</span></div><h1>CrosswordGenerator.java</h1><pre class="source lang-java linenums">package ru.langgame.mediator.crossword;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Автогенератор кроссворда из набора слов.
+ *
+ * &lt;p&gt;Жадное размещение с пересечениями: первое слово кладётся по горизонтали,
+ * каждое следующее — перпендикулярно через общую букву. Проверяются конфликты
+ * клеток и смежность (слова не должны «слипаться» боками), что даёт корректную
+ * связную сетку. Работает в «буквах» алфавита (диграфы — одна клетка).&lt;/p&gt;
+ */
+public final class CrosswordGenerator {
+
+    /** Слово-кандидат: текст, буквы алфавита, подсказка. */
+<span class="fc" id="L22">    public record Candidate(String text, List&lt;String&gt; letters, String clue) {</span>
+    }
+
+<span class="fc" id="L25">    private record Point(int r, int c) {</span>
+    }
+
+<span class="fc" id="L28">    private record Placement(int row, int col, boolean horizontal) {</span>
+    }
+
+<span class="fc" id="L31">    private record Placed(Candidate word, int row, int col, boolean horizontal) {</span>
+    }
+
+    private CrosswordGenerator() {
+    }
+
+    /**
+     * @param candidates пул слов (будет отсортирован по длине убыв.)
+     * @param maxWords   желаемое число слов в сетке
+     * @return раскладка (с ответами) либо с минимум 2 словами; иначе бросает
+     */
+    public static CrosswordLayout generate(List&lt;Candidate&gt; candidates, int maxWords) {
+<span class="fc" id="L43">        List&lt;Candidate&gt; pool = new ArrayList&lt;&gt;(candidates);</span>
+        // перемешиваем для разнообразия длин; длинное слово берём затравкой
+<span class="fc" id="L45">        Collections.shuffle(pool);</span>
+<span class="fc" id="L46">        pool.stream().max(Comparator.comparingInt(c -&gt; c.letters().size()))</span>
+<span class="fc" id="L47">                .ifPresent(longest -&gt; {</span>
+<span class="fc" id="L48">                    pool.remove(longest);</span>
+<span class="fc" id="L49">                    pool.add(0, longest);</span>
+<span class="fc" id="L50">                });</span>
+
+<span class="fc" id="L52">        Map&lt;Point, String&gt; grid = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L53">        List&lt;Placed&gt; placed = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L55">        Candidate first = pool.get(0);</span>
+<span class="fc" id="L56">        put(grid, first, 0, 0, true);</span>
+<span class="fc" id="L57">        placed.add(new Placed(first, 0, 0, true));</span>
+
+<span class="pc bpc" id="L59" title="1 of 4 branches missed.">        for (int i = 1; i &lt; pool.size() &amp;&amp; placed.size() &lt; maxWords; i++) {</span>
+<span class="fc" id="L60">            Candidate cand = pool.get(i);</span>
+<span class="fc" id="L61">            Placement p = findPlacement(grid, cand);</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">            if (p != null) {</span>
+<span class="fc" id="L63">                put(grid, cand, p.row(), p.col(), p.horizontal());</span>
+<span class="fc" id="L64">                placed.add(new Placed(cand, p.row(), p.col(), p.horizontal()));</span>
+            }
+        }
+
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if (placed.size() &lt; 2) {</span>
+<span class="nc" id="L69">            throw new IllegalStateException(&quot;Не удалось собрать кроссворд из данного набора&quot;);</span>
+        }
+<span class="fc" id="L71">        return toLayout(placed);</span>
+    }
+
+    private static void put(Map&lt;Point, String&gt; grid, Candidate w, int r, int c, boolean horiz) {
+<span class="fc" id="L75">        List&lt;String&gt; letters = w.letters();</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        for (int k = 0; k &lt; letters.size(); k++) {</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">            int pr = horiz ? r : r + k;</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">            int pc = horiz ? c + k : c;</span>
+<span class="fc" id="L79">            grid.put(new Point(pr, pc), letters.get(k));</span>
+        }
+<span class="fc" id="L81">    }</span>
+
+    /** Лучшее размещение слова — с максимумом пересечений (плотная сетка). */
+    private static Placement findPlacement(Map&lt;Point, String&gt; grid, Candidate cand) {
+<span class="fc" id="L85">        List&lt;String&gt; letters = cand.letters();</span>
+<span class="fc" id="L86">        Placement best = null;</span>
+<span class="fc" id="L87">        int bestScore = 0;</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        for (int i = 0; i &lt; letters.size(); i++) {</span>
+<span class="fc" id="L89">            String letter = letters.get(i);</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">            for (Map.Entry&lt;Point, String&gt; cell : grid.entrySet()) {</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">                if (!cell.getValue().equals(letter)) {</span>
+<span class="fc" id="L92">                    continue;</span>
+                }
+<span class="fc" id="L94">                Point hit = cell.getKey();</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">                for (Placement p : List.of(</span>
+<span class="fc" id="L96">                        new Placement(hit.r(), hit.c() - i, true),</span>
+<span class="fc" id="L97">                        new Placement(hit.r() - i, hit.c(), false))) {</span>
+<span class="fc" id="L98">                    int score = intersectionScore(grid, letters, p);</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">                    if (score &gt; bestScore) {</span>
+<span class="fc" id="L100">                        bestScore = score;</span>
+<span class="fc" id="L101">                        best = p;</span>
+                    }
+<span class="fc" id="L103">                }</span>
+<span class="fc" id="L104">            }</span>
+        }
+<span class="fc" id="L106">        return best;</span>
+    }
+
+    /** Число пересечений при размещении, либо -1 если размещение недопустимо. */
+    private static int intersectionScore(Map&lt;Point, String&gt; grid, List&lt;String&gt; letters, Placement p) {
+<span class="fc" id="L111">        int len = letters.size();</span>
+<span class="fc" id="L112">        int intersections = 0;</span>
+
+        // клетки перед началом и после конца должны быть пусты
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        Point before = p.horizontal()</span>
+<span class="fc" id="L116">                ? new Point(p.row(), p.col() - 1) : new Point(p.row() - 1, p.col());</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        Point after = p.horizontal()</span>
+<span class="fc" id="L118">                ? new Point(p.row(), p.col() + len) : new Point(p.row() + len, p.col());</span>
+<span class="fc bfc" id="L119" title="All 4 branches covered.">        if (grid.containsKey(before) || grid.containsKey(after)) {</span>
+<span class="fc" id="L120">            return -1;</span>
+        }
+
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        for (int k = 0; k &lt; len; k++) {</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">            int pr = p.horizontal() ? p.row() : p.row() + k;</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">            int pc = p.horizontal() ? p.col() + k : p.col();</span>
+<span class="fc" id="L126">            Point cur = new Point(pr, pc);</span>
+<span class="fc" id="L127">            String existing = grid.get(cur);</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">            if (existing != null) {</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">                if (!existing.equals(letters.get(k))) {</span>
+<span class="fc" id="L130">                    return -1;</span>
+                }
+<span class="fc" id="L132">                intersections++;</span>
+            } else {
+                // соседи перпендикулярно направлению слова должны быть пусты
+<span class="fc bfc" id="L135" title="All 2 branches covered.">                Point side1 = p.horizontal() ? new Point(pr - 1, pc) : new Point(pr, pc - 1);</span>
+<span class="fc bfc" id="L136" title="All 2 branches covered.">                Point side2 = p.horizontal() ? new Point(pr + 1, pc) : new Point(pr, pc + 1);</span>
+<span class="fc bfc" id="L137" title="All 4 branches covered.">                if (grid.containsKey(side1) || grid.containsKey(side2)) {</span>
+<span class="fc" id="L138">                    return -1;</span>
+                }
+            }
+        }
+<span class="pc bpc" id="L142" title="2 of 4 branches missed.">        return (intersections &gt;= 1 &amp;&amp; intersections &lt; len) ? intersections : -1;</span>
+    }
+
+    private static CrosswordLayout toLayout(List&lt;Placed&gt; placed) {
+<span class="fc" id="L146">        int minR = placed.stream().flatMap(CrosswordGenerator::cells).mapToInt(Point::r).min().orElse(0);</span>
+<span class="fc" id="L147">        int minC = placed.stream().flatMap(CrosswordGenerator::cells).mapToInt(Point::c).min().orElse(0);</span>
+<span class="fc" id="L148">        int maxR = placed.stream().flatMap(CrosswordGenerator::cells).mapToInt(Point::r).max().orElse(0);</span>
+<span class="fc" id="L149">        int maxC = placed.stream().flatMap(CrosswordGenerator::cells).mapToInt(Point::c).max().orElse(0);</span>
+
+        // нумерация: общие номера для записей с одной стартовой клеткой
+<span class="fc" id="L152">        List&lt;Placed&gt; sorted = new ArrayList&lt;&gt;(placed);</span>
+<span class="fc" id="L153">        sorted.sort(Comparator.comparingInt((Placed w) -&gt; w.row() - minR)</span>
+<span class="fc" id="L154">                .thenComparingInt(w -&gt; w.col() - minC));</span>
+<span class="fc" id="L155">        Map&lt;Point, Integer&gt; numberByStart = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L156">        int next = 1;</span>
+<span class="fc" id="L157">        List&lt;CrosswordEntry&gt; entries = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        for (Placed w : sorted) {</span>
+<span class="fc" id="L159">            Point start = new Point(w.row() - minR, w.col() - minC);</span>
+<span class="fc" id="L160">            int number = numberByStart.computeIfAbsent(start, k -&gt; 0);</span>
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">            if (number == 0) {</span>
+<span class="fc" id="L162">                number = next++;</span>
+<span class="fc" id="L163">                numberByStart.put(start, number);</span>
+            }
+<span class="fc" id="L165">            entries.add(new CrosswordEntry(</span>
+                    number,
+<span class="fc bfc" id="L167" title="All 2 branches covered.">                    w.horizontal() ? &quot;ACROSS&quot; : &quot;DOWN&quot;,</span>
+<span class="fc" id="L168">                    start.r(), start.c(),</span>
+<span class="fc" id="L169">                    w.word().letters().size(),</span>
+<span class="fc" id="L170">                    w.word().text(),</span>
+<span class="fc" id="L171">                    w.word().clue()));</span>
+<span class="fc" id="L172">        }</span>
+<span class="fc" id="L173">        return new CrosswordLayout(maxR - minR + 1, maxC - minC + 1, entries);</span>
+    }
+
+    private static java.util.stream.Stream&lt;Point&gt; cells(Placed w) {
+<span class="fc" id="L177">        List&lt;Point&gt; pts = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L178">        int len = w.word().letters().size();</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">        for (int k = 0; k &lt; len; k++) {</span>
+<span class="fc bfc" id="L180" title="All 2 branches covered.">            pts.add(w.horizontal()</span>
+<span class="fc" id="L181">                    ? new Point(w.row(), w.col() + k) : new Point(w.row() + k, w.col()));</span>
+        }
+<span class="fc" id="L183">        return pts.stream();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

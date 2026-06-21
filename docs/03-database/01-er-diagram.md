@@ -108,4 +108,4 @@ puzzle      ||--o{ game_session  : "порождает"
 | `quiz_option` | Варианты ответа | — |
 | `game_session` | Результаты игр | — |
 
-> PNG-экспорт: `images/er-diagram.png`.
+![ER-диаграмма](images/er-diagram.png)

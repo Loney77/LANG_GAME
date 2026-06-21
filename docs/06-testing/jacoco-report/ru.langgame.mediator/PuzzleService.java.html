@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PuzzleService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lang-game</a> &gt; <a href="index.source.html" class="el_package">ru.langgame.mediator</a> &gt; <span class="el_source">PuzzleService.java</span></div><h1>PuzzleService.java</h1><pre class="source lang-java linenums">package ru.langgame.mediator;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.langgame.entity.AlphabetTokenizer;
+import ru.langgame.entity.GameType;
+import ru.langgame.entity.Puzzle;
+import ru.langgame.entity.Word;
+import ru.langgame.foundation.IGameTypeRepository;
+import ru.langgame.foundation.IPuzzleRepository;
+import ru.langgame.foundation.IWordRepository;
+import ru.langgame.mediator.dto.PuzzleDto;
+import ru.langgame.mediator.exception.NotFoundException;
+
+import java.time.LocalDate;
+import java.util.List;
+
+/** Формирование игровых заданий. */
+@Service
+@RequiredArgsConstructor
+public class PuzzleService implements IPuzzleService {
+
+    private static final String SOZDL = &quot;SOZDL&quot;;
+    private static final int SOZDL_LENGTH = 5;
+
+    private final IPuzzleRepository puzzles;
+    private final IWordRepository words;
+    private final IGameTypeRepository gameTypes;
+
+    @Override
+    @Transactional
+    public PuzzleDto getDailySozdl(LocalDate date) {
+<span class="fc" id="L34">        Puzzle puzzle = puzzles.findByGameType_CodeAndPuzzleDate(SOZDL, date)</span>
+<span class="fc" id="L35">                .orElseGet(() -&gt; createDailySozdl(date));</span>
+<span class="fc" id="L36">        return new PuzzleDto(</span>
+<span class="fc" id="L37">                puzzle.getId(),</span>
+                SOZDL,
+<span class="fc" id="L39">                AlphabetTokenizer.letterCount(puzzle.getWord().getText()),</span>
+<span class="fc" id="L40">                puzzle.getPuzzleDate());</span>
+    }
+
+    private Puzzle createDailySozdl(LocalDate date) {
+<span class="fc" id="L44">        List&lt;Word&gt; candidates = words.findByLetterCount(SOZDL_LENGTH);</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        if (candidates.isEmpty()) {</span>
+<span class="fc" id="L46">            throw new NotFoundException(&quot;Нет слов из &quot; + SOZDL_LENGTH + &quot; букв для Sozdl&quot;);</span>
+        }
+        // Детерминированный выбор слова по дате: одинаков для всех игроков.
+<span class="fc" id="L49">        Word target = candidates.get(Math.floorMod(date.hashCode(), candidates.size()));</span>
+<span class="fc" id="L50">        GameType gameType = gameTypes.findByCode(SOZDL)</span>
+<span class="pc" id="L51">                .orElseThrow(() -&gt; new NotFoundException(&quot;Тип игры SOZDL не найден&quot;));</span>
+
+<span class="fc" id="L53">        Puzzle puzzle = new Puzzle();</span>
+<span class="fc" id="L54">        puzzle.setGameType(gameType);</span>
+<span class="fc" id="L55">        puzzle.setWord(target);</span>
+<span class="fc" id="L56">        puzzle.setPuzzleDate(date);</span>
+<span class="fc" id="L57">        return puzzles.save(puzzle);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

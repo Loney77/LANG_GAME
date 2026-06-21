@@ -8,9 +8,21 @@
 title Domain Model: «Сёз оюн»
 skinparam classAttributeIconSize 0
 
-enum Role { USER \n ADMIN }
-enum GameType { SOZDL \n ANAGRAM \n QUIZ \n CROSSWORD }
-enum SessionStatus { IN_PROGRESS \n WIN \n LOSS }
+enum Role {
+  USER
+  ADMIN
+}
+enum GameType {
+  SOZDL
+  ANAGRAM
+  QUIZ
+  CROSSWORD
+}
+enum SessionStatus {
+  IN_PROGRESS
+  WIN
+  LOSS
+}
 
 class User {
   +id : Long
@@ -73,6 +85,8 @@ QuizQuestion "*" --> "1" Word : верный ответ
 Puzzle "1" --> "*" GameSession : порождает
 @enduml
 ```
+
+![Domain Model](images/domain-model.png)
 
 ## Описание сущностей, атрибутов и бизнес-правил
 

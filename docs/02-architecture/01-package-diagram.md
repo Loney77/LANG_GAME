@@ -103,4 +103,4 @@ ru.langgame
 └── config       # SecurityConfig, OpenAPI, JWT-фильтр, инициализация seed
 ```
 
-> PNG-экспорт: `diagrams/package-diagram-pcmef.png`.
+![Диаграмма пакетов PCMEF](diagrams/package-diagram-pcmef.png)

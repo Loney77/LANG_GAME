@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GlobalExceptionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lang-game</a> &gt; <a href="index.source.html" class="el_package">ru.langgame.control</a> &gt; <span class="el_source">GlobalExceptionHandler.java</span></div><h1>GlobalExceptionHandler.java</h1><pre class="source lang-java linenums">package ru.langgame.control;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.langgame.mediator.exception.*;
+
+import java.time.Instant;
+import java.util.Map;
+
+/** Единая обработка исключений → корректные HTTP-статусы и тело ошибки. */
+@RestControllerAdvice
+<span class="nc" id="L15">public class GlobalExceptionHandler {</span>
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity&lt;Object&gt; notFound(NotFoundException ex) {
+<span class="nc" id="L19">        return body(HttpStatus.NOT_FOUND, ex.getMessage());</span>
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity&lt;Object&gt; conflict(ConflictException ex) {
+<span class="nc" id="L24">        return body(HttpStatus.CONFLICT, ex.getMessage());</span>
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity&lt;Object&gt; unauthorized(UnauthorizedException ex) {
+<span class="nc" id="L29">        return body(HttpStatus.UNAUTHORIZED, ex.getMessage());</span>
+    }
+
+    @ExceptionHandler(InvalidGuessException.class)
+    public ResponseEntity&lt;Object&gt; invalidGuess(InvalidGuessException ex) {
+<span class="nc" id="L34">        return body(HttpStatus.BAD_REQUEST, ex.getMessage());</span>
+    }
+
+    @ExceptionHandler(WordNotFoundException.class)
+    public ResponseEntity&lt;Object&gt; wordNotFound(WordNotFoundException ex) {
+<span class="nc" id="L39">        return body(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());</span>
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity&lt;Object&gt; validation(MethodArgumentNotValidException ex) {
+<span class="nc" id="L44">        String msg = ex.getBindingResult().getFieldErrors().stream()</span>
+<span class="nc" id="L45">                .findFirst()</span>
+<span class="nc" id="L46">                .map(f -&gt; f.getField() + &quot;: &quot; + f.getDefaultMessage())</span>
+<span class="nc" id="L47">                .orElse(&quot;Ошибка валидации&quot;);</span>
+<span class="nc" id="L48">        return body(HttpStatus.BAD_REQUEST, msg);</span>
+    }
+
+    private ResponseEntity&lt;Object&gt; body(HttpStatus status, String message) {
+<span class="nc" id="L52">        return ResponseEntity.status(status).body(Map.of(</span>
+<span class="nc" id="L53">                &quot;timestamp&quot;, Instant.now().toString(),</span>
+<span class="nc" id="L54">                &quot;status&quot;, status.value(),</span>
+<span class="nc" id="L55">                &quot;error&quot;, status.getReasonPhrase(),</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">                &quot;message&quot;, message == null ? &quot;&quot; : message</span>
+        ));
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

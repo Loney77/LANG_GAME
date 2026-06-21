@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WordMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lang-game</a> &gt; <a href="index.source.html" class="el_package">ru.langgame.mediator</a> &gt; <span class="el_source">WordMapper.java</span></div><h1>WordMapper.java</h1><pre class="source lang-java linenums">package ru.langgame.mediator;
+
+import org.springframework.stereotype.Component;
+import ru.langgame.entity.Word;
+import ru.langgame.mediator.dto.WordDto;
+
+import java.util.List;
+
+/**
+ * Маппер словарных статей (паттерн Data Mapper на уровне транспорта).
+ *
+ * &lt;p&gt;Преобразует доменную сущность {@link Word} в {@link WordDto} и обратно,
+ * изолируя слой представления от деталей персистентности.&lt;/p&gt;
+ */
+@Component
+<span class="fc" id="L16">public class WordMapper {</span>
+
+    /** Сущность → DTO. */
+    public WordDto toDto(Word word) {
+<span class="fc bfc" id="L20" title="All 2 branches covered.">        if (word == null) {</span>
+<span class="fc" id="L21">            return null;</span>
+        }
+<span class="fc" id="L23">        return new WordDto(</span>
+<span class="fc" id="L24">                word.getId(),</span>
+<span class="fc" id="L25">                word.getText(),</span>
+<span class="fc" id="L26">                word.getTranslation(),</span>
+<span class="fc" id="L27">                word.getLetterCount(),</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">                word.getTheme() != null ? word.getTheme().getName() : null</span>
+        );
+    }
+
+    /** Список сущностей → список DTO. */
+    public List&lt;WordDto&gt; toDtoList(List&lt;Word&gt; words) {
+<span class="fc" id="L34">        return words.stream().map(this::toDto).toList();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

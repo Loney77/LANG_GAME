@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SozdlService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lang-game</a> &gt; <a href="index.source.html" class="el_package">ru.langgame.mediator</a> &gt; <span class="el_source">SozdlService.java</span></div><h1>SozdlService.java</h1><pre class="source lang-java linenums">package ru.langgame.mediator;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.langgame.entity.*;
+import ru.langgame.foundation.IPuzzleRepository;
+import ru.langgame.foundation.ISessionRepository;
+import ru.langgame.foundation.IUserRepository;
+import ru.langgame.foundation.IWordRepository;
+import ru.langgame.mediator.dto.GuessResult;
+import ru.langgame.mediator.exception.InvalidGuessException;
+import ru.langgame.mediator.exception.NotFoundException;
+import ru.langgame.mediator.exception.WordNotFoundException;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * Игровая логика «Сёздл» (угадывание слова, Mediator).
+ *
+ * &lt;p&gt;Вся проверка выполняется на сервере: валидация слова по словарю, подсветка
+ * букв, учёт попыток и подсчёт очков (см. ADR-002).&lt;/p&gt;
+ */
+@Service
+@RequiredArgsConstructor
+public class SozdlService implements ISozdlService {
+
+    static final int MAX_ATTEMPTS = 6;
+
+    private final IWordRepository words;
+    private final IPuzzleRepository puzzles;
+    private final ISessionRepository sessions;
+    private final IUserRepository users;
+    private final ScoringService scoring;
+
+    @Override
+    @Transactional
+    public GuessResult evaluateGuess(Long puzzleId, String guess, Long userId) {
+<span class="fc" id="L42">        Puzzle puzzle = puzzles.findById(puzzleId)</span>
+<span class="fc" id="L43">                .orElseThrow(() -&gt; new NotFoundException(&quot;Задание не найдено: &quot; + puzzleId));</span>
+<span class="fc" id="L44">        Word target = puzzle.getWord();</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        if (target == null) {</span>
+<span class="nc" id="L46">            throw new IllegalStateException(&quot;У задания нет целевого слова&quot;);</span>
+        }
+
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">        String normalizedGuess = guess == null ? &quot;&quot; : guess.strip();</span>
+<span class="fc" id="L50">        List&lt;String&gt; guessLetters = AlphabetTokenizer.tokenize(normalizedGuess);</span>
+<span class="fc" id="L51">        List&lt;String&gt; targetLetters = AlphabetTokenizer.tokenize(target.getText());</span>
+
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (guessLetters.size() != targetLetters.size()) {</span>
+<span class="fc" id="L54">            throw new InvalidGuessException(</span>
+<span class="fc" id="L55">                    &quot;Ожидается слово из &quot; + targetLetters.size() + &quot; букв&quot;);</span>
+        }
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        if (!words.existsByTextIgnoreCase(normalizedGuess)) {</span>
+<span class="fc" id="L58">            throw new WordNotFoundException(normalizedGuess);</span>
+        }
+
+<span class="fc" id="L61">        TileStatus[] tiles = LetterMatcher.evaluate(guessLetters, targetLetters);</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        boolean win = Arrays.stream(tiles).allMatch(s -&gt; s == TileStatus.CORRECT);</span>
+
+<span class="fc" id="L64">        GameSession session = sessions</span>
+<span class="fc" id="L65">                .findByUser_IdAndPuzzle_IdAndStatus(userId, puzzleId, SessionStatus.IN_PROGRESS)</span>
+<span class="fc" id="L66">                .orElseGet(() -&gt; newSession(userId, puzzle));</span>
+<span class="fc" id="L67">        session.registerAttempt();</span>
+
+<span class="pc bpc" id="L69" title="1 of 4 branches missed.">        boolean finished = win || session.getAttempts() &gt;= MAX_ATTEMPTS;</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (finished) {</span>
+<span class="fc" id="L71">            long durationMs = Duration.between(session.getStartedAt(), Instant.now()).toMillis();</span>
+<span class="fc" id="L72">            session.setDurationMs(durationMs);</span>
+<span class="fc" id="L73">            int points = scoring.score(session.getAttempts(), durationMs, win);</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">            session.finish(win ? SessionStatus.WIN : SessionStatus.LOSS, points);</span>
+        }
+<span class="fc" id="L76">        sessions.save(session);</span>
+
+<span class="fc" id="L78">        return new GuessResult(List.of(tiles), session.getAttempts(), finished, win);</span>
+    }
+
+    private GameSession newSession(Long userId, Puzzle puzzle) {
+<span class="fc" id="L82">        GameSession s = new GameSession();</span>
+<span class="fc" id="L83">        s.setUser(users.getReferenceById(userId));</span>
+<span class="fc" id="L84">        s.setPuzzle(puzzle);</span>
+<span class="fc" id="L85">        return s;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

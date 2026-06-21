@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LetterMatcher.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lang-game</a> &gt; <a href="index.source.html" class="el_package">ru.langgame.mediator</a> &gt; <span class="el_source">LetterMatcher.java</span></div><h1>LetterMatcher.java</h1><pre class="source lang-java linenums">package ru.langgame.mediator;
+
+import ru.langgame.entity.TileStatus;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Чистая логика подсветки букв в игре «Сёздл» (без побочных эффектов).
+ *
+ * &lt;p&gt;Двухпроходный алгоритм корректно обрабатывает повторяющиеся буквы:
+ * сначала помечаются буквы на своих местах ({@link TileStatus#CORRECT}),
+ * затем из оставшегося запаса целевого слова — присутствующие
+ * ({@link TileStatus#PRESENT}); прочие — {@link TileStatus#ABSENT}.&lt;/p&gt;
+ */
+public final class LetterMatcher {
+
+    private LetterMatcher() {
+    }
+
+    /**
+     * @param guess  буквы догадки
+     * @param target буквы целевого слова (той же длины)
+     * @return статус каждой буквы догадки
+     */
+    public static TileStatus[] evaluate(List&lt;String&gt; guess, List&lt;String&gt; target) {
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">        if (guess.size() != target.size()) {</span>
+<span class="nc" id="L29">            throw new IllegalArgumentException(&quot;guess and target length mismatch&quot;);</span>
+        }
+<span class="fc" id="L31">        int n = target.size();</span>
+<span class="fc" id="L32">        TileStatus[] result = new TileStatus[n];</span>
+
+        // Запас букв целевого слова.
+<span class="fc" id="L35">        Map&lt;String, Integer&gt; remaining = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        for (String letter : target) {</span>
+<span class="fc" id="L37">            remaining.merge(letter, 1, Integer::sum);</span>
+<span class="fc" id="L38">        }</span>
+
+        // Проход 1: буквы на своих местах.
+<span class="fc bfc" id="L41" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">            if (guess.get(i).equals(target.get(i))) {</span>
+<span class="fc" id="L43">                result[i] = TileStatus.CORRECT;</span>
+<span class="fc" id="L44">                remaining.merge(guess.get(i), -1, Integer::sum);</span>
+            }
+        }
+
+        // Проход 2: присутствующие/отсутствующие.
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">            if (result[i] != null) {</span>
+<span class="fc" id="L51">                continue;</span>
+            }
+<span class="fc" id="L53">            String letter = guess.get(i);</span>
+<span class="fc" id="L54">            Integer left = remaining.get(letter);</span>
+<span class="fc bfc" id="L55" title="All 4 branches covered.">            if (left != null &amp;&amp; left &gt; 0) {</span>
+<span class="fc" id="L56">                result[i] = TileStatus.PRESENT;</span>
+<span class="fc" id="L57">                remaining.merge(letter, -1, Integer::sum);</span>
+            } else {
+<span class="fc" id="L59">                result[i] = TileStatus.ABSENT;</span>
+            }
+        }
+<span class="fc" id="L62">        return result;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

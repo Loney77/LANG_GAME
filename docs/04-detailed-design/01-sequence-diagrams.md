@@ -37,6 +37,8 @@ end
 @enduml
 ```
 
+![Сценарий: отправка догадки Сёздл](images/sequence-1.png)
+
 ## 2. Вход пользователя (UC2)
 
 ```plantuml
@@ -64,6 +66,8 @@ end
 @enduml
 ```
 
+![Сценарий: вход пользователя](images/sequence-2.png)
+
 ## 3. Получение лидерборда (UC9)
 
 ```plantuml
@@ -86,3 +90,5 @@ M --> C : List<LeaderboardEntry>
 C --> Игрок : 200 OK
 @enduml
 ```
+
+![Сценарий: получение лидерборда](images/sequence-3.png)

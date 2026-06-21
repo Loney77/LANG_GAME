@@ -47,7 +47,11 @@ package entity {
     - status : SessionStatus
     + calculateScore(scoring) : void
   }
-  enum TileStatus { CORRECT \n PRESENT \n ABSENT }
+  enum TileStatus {
+    CORRECT
+    PRESENT
+    ABSENT
+  }
 }
 
 package foundation {
@@ -71,5 +75,4 @@ SozdlService ..> Word
 @enduml
 ```
 
-> Полная диаграмма классов (все сущности и сервисы) экспортируется в
-> `images/design-class-diagram.png`.
+![Диаграмма классов проектирования](images/design-class-diagram.png)
