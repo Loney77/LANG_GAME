@@ -1,4 +1,4 @@
-# Карачаевский язык в игровой форме — мобильное приложение
+# Карачаевский язык в игровой форме - мобильное приложение
 
 Курсовой проект по дисциплине «Программная инженерия» (СКФУ, 09.03.04).
 **Траектория В: Мобильная разработка (React Native + Java Spring Boot).**
@@ -62,7 +62,7 @@ docker compose up --build
 Документация API (Swagger UI): `http://localhost:8137/swagger-ui.html`.
 
 Для развёртывания с публичным HTTPS (PostgreSQL + сервер + Caddy с сертификатом
-Let's Encrypt) используется `docker-compose.prod.yml`. Подробнее — в
+Let's Encrypt) используется `docker-compose.prod.yml`. Подробнее - в
 [docker/README.md](docker/README.md).
 
 ### Клиент
@@ -86,7 +86,7 @@ cd mobile
 eas build -p android --profile preview
 ```
 
-Подробнее — в [mobile/README.md](mobile/README.md).
+Подробнее - в [mobile/README.md](mobile/README.md).
 
 ## REST API
 
@@ -94,8 +94,8 @@ eas build -p android --profile preview
 
 | Метод | Путь | Назначение | Доступ |
 |-------|------|-----------|--------|
-| POST | `/api/auth/register` | Регистрация | — |
-| POST | `/api/auth/login` | Аутентификация (JWT) | — |
+| POST | `/api/auth/register` | Регистрация | - |
+| POST | `/api/auth/login` | Аутентификация (JWT) | - |
 | GET | `/api/words` | Список слов (фильтр по длине/теме) | USER |
 | POST/PUT/DELETE | `/api/words`, `/api/words/{id}` | CRUD словаря | ADMIN |
 | GET | `/api/themes` | Темы | USER |
@@ -108,16 +108,32 @@ eas build -p android --profile preview
 
 Стандартные коды состояния: 200/201/400/401/403/404.
 
+## Скриншоты приложения
+
+Полный набор экранов (вход, регистрация, все четыре игры, рейтинг, профиль) -
+в [docs/08-ui/mobile/](docs/08-ui/mobile/).
+
+![Вход](docs/08-ui/mobile/01-login.jpg)
+![Главный экран](docs/08-ui/mobile/03-home.jpg)
+![Игра «Сёздл»](docs/08-ui/mobile/04-sozdl-in-progress.jpg)
+![Рейтинг](docs/08-ui/mobile/15-leaderboard.jpg)
+
 ## Статистика разработки
 
-> Финальные графики GitHub Insights добавляются на момент сдачи в `docs/images/`.
+### Метрики Git
 
-- Всего коммитов: _обновить при сдаче_
-- Период разработки: _обновить при сдаче_
+- Всего коммитов: 9
+- Период разработки: 05.06.2026 - 21.06.2026
+- Средняя частота: 3.7 коммита в неделю
+
+### График активности
 
 ![Активность коммитов](docs/images/git-stats-commit-activity.png)
-![Распределение по времени](docs/images/git-stats-punch-card.png)
+
+### Тепловая карта (Punch Card)
+
+![Распределение коммитов по дням и часам](docs/images/git-stats-punch-card.png)
 
 ## Лицензия
 
-Проект распространяется под лицензией MIT — см. [LICENSE](LICENSE).
+Проект распространяется под лицензией MIT - см. [LICENSE](LICENSE).
