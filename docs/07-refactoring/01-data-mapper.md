@@ -7,7 +7,7 @@
 ## 1. Персистентность: репозитории Spring Data JPA
 
 Слой Foundation (`IWordRepository`, `IPuzzleRepository`, `ISessionRepository`,
-`IUserRepository`) — это реализация Data Mapper: он отображает строки таблиц на
+`IUserRepository`) - это реализация Data Mapper: он отображает строки таблиц на
 доменные сущности и обратно, а домен (Entity) не содержит SQL и не знает о БД.
 
 ```java

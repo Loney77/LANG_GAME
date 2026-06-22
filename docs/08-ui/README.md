@@ -1,6 +1,6 @@
 # Этап 7 (часть 2). Мобильный интерфейс (React Native)
 
-Presentation-слой PCMEF — мобильное приложение на **React Native + TypeScript**
+Presentation-слой PCMEF - мобильное приложение на **React Native + TypeScript**
 (фреймворк Expo). Код в `mobile/`.
 
 ## Экраны (8, требование методички ≥5)
@@ -20,11 +20,11 @@ Presentation-слой PCMEF — мобильное приложение на **R
 
 | Слой/модуль | Реализация |
 |-------------|-----------|
-| Состояние | Context API (`auth/AuthContext`) — аналог ViewModel |
+| Состояние | Context API (`auth/AuthContext`) - аналог ViewModel |
 | API-клиент | Axios + **JWT-интерсептор** (`api/client.ts`) |
 | Навигация | React Navigation: стек игр + нижние табы |
 | Оффлайн-кэш | AsyncStorage (`storage/cache.ts`, `withCache`) |
-| Доменная утилита | `util/alphabet.ts` — токенизатор алфавита для плиток |
+| Доменная утилита | `util/alphabet.ts` - токенизатор алфавита для плиток |
 
 ## Обработка состояний
 
@@ -42,7 +42,7 @@ Presentation-слой PCMEF — мобильное приложение на **R
 
 - Инструкции: [`mobile/README.md`](../../mobile/README.md).
 - Базовый URL сервера задаётся переменной `EXPO_PUBLIC_API_URL` (`mobile/.env`).
-- **Проверка типов:** `npm run typecheck` (`tsc --noEmit`) — проходит без ошибок.
+- **Проверка типов:** `npm run typecheck` (`tsc --noEmit`) - проходит без ошибок.
 - Запуск: `npx expo start` (Expo Go) либо установка APK.
 
 ## Скриншоты
@@ -55,23 +55,23 @@ Presentation-слой PCMEF — мобильное приложение на **R
 ![Главная](mobile/03-home.jpg)
 
 ### Сёздл
-![Сёздл — ход игры](mobile/04-sozdl-in-progress.jpg)
-![Сёздл — победа](mobile/05-sozdl-win.jpg)
+![Сёздл - ход игры](mobile/04-sozdl-in-progress.jpg)
+![Сёздл - победа](mobile/05-sozdl-win.jpg)
 
 ### Анаграмма
 ![Анаграмма](mobile/06-anagram.jpg)
-![Анаграмма — верно](mobile/07-anagram-win.jpg)
-![Анаграмма — неверно](mobile/08-anagram-lose.jpg)
+![Анаграмма - верно](mobile/07-anagram-win.jpg)
+![Анаграмма - неверно](mobile/08-anagram-lose.jpg)
 
 ### Викторина
 ![Викторина](mobile/09-quiz.jpg)
-![Викторина — верно](mobile/10-quiz-win.jpg)
-![Викторина — неверно](mobile/11-quiz-lose.jpg)
+![Викторина - верно](mobile/10-quiz-win.jpg)
+![Викторина - неверно](mobile/11-quiz-lose.jpg)
 
 ### Кроссворд
-![Кроссворд — сетка](mobile/12-crossword-top.jpg)
-![Кроссворд — заполнение](mobile/13-crossword-unchecked.jpg)
-![Кроссворд — проверка с правильными ответами](mobile/14-crossword-checked.jpg)
+![Кроссворд - сетка](mobile/12-crossword-top.jpg)
+![Кроссворд - заполнение](mobile/13-crossword-unchecked.jpg)
+![Кроссворд - проверка с правильными ответами](mobile/14-crossword-checked.jpg)
 
 ### Рейтинг и профиль
 ![Рейтинг](mobile/15-leaderboard.jpg)

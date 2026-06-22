@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * Dev-загрузчик расширенного словаря (Сёзлюк) из локального JSON.
  *
  * <p>Данные источника НЕ хранятся в репозитории. Если файл существует рядом и в БД
- * только базовый seed — слова догружаются (идемпотентно, без дублей по написанию).
+ * только базовый seed - слова догружаются (идемпотентно, без дублей по написанию).
  * На машинах без файла загрузчик ничего не делает.</p>
  */
 @Component
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SozlukSeedLoader implements ApplicationRunner {
 
-    private static final long BASELINE_THRESHOLD = 1000;   // выше — считаем, что уже загружено
+    private static final long BASELINE_THRESHOLD = 1000;   // выше - считаем, что уже загружено
     private static final int BATCH = 1000;
     private static final int MAX_TRANSLATION = 255;
 
@@ -55,12 +55,12 @@ public class SozlukSeedLoader implements ApplicationRunner {
             return;
         }
         if (words.count() > BASELINE_THRESHOLD) {
-            log.info("Словарь уже наполнен ({} слов) — пропускаю загрузку Сёзлюка", words.count());
+            log.info("Словарь уже наполнен ({} слов) - пропускаю загрузку Сёзлюка", words.count());
             return;
         }
         Path path = Path.of(sozlukFile);
         if (!Files.exists(path)) {
-            log.info("Файл {} не найден — расширенный словарь не загружается (ок для CI/чужих машин)", path);
+            log.info("Файл {} не найден - расширенный словарь не загружается (ок для CI/чужих машин)", path);
             return;
         }
 
@@ -76,7 +76,7 @@ public class SozlukSeedLoader implements ApplicationRunner {
                 continue;
             }
             String key = rec.text().toLowerCase(Locale.ROOT);
-            if (!existing.add(key)) {     // уже есть (baseline или дубль) — пропускаем
+            if (!existing.add(key)) {     // уже есть (baseline или дубль) - пропускаем
                 continue;
             }
             Word word = new Word();

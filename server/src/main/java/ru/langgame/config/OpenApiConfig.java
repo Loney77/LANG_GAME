@@ -18,7 +18,7 @@ public class OpenApiConfig {
     public OpenAPI langGameOpenApi() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("«Сёз оюн» — API обучения карачаевскому языку")
+                        .title("«Сёз оюн» - API обучения карачаевскому языку")
                         .version("0.1.0")
                         .description("REST API: аутентификация (JWT), словарь, игры, лидерборд."))
                 .addSecurityItem(new SecurityRequirement().addList(SCHEME))

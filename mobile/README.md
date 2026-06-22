@@ -34,7 +34,7 @@ mobile/
 ## Настройка адреса сервера
 
 Адрес сервера задаётся переменной `EXPO_PUBLIC_API_URL` в файле `.env`
-(шаблон — `.env.example`); код адрес не содержит.
+(шаблон - `.env.example`); код адрес не содержит.
 
 ```bash
 cp .env.example .env        # Windows PowerShell: Copy-Item .env.example .env

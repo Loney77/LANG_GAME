@@ -26,7 +26,6 @@ services:
       DB_PASSWORD: langgame
       JWT_SECRET: ${JWT_SECRET:-change-me-dev-secret-change-me-dev-secret-32b}
       SERVER_PORT: "8137"
-      # Расширенный словарь подхватывается, если файл смонтирован (иначе — базовый из Flyway).
       JAVA_TOOL_OPTIONS: "-Dapp.seed.sozluk-file=/data/sozluk.words.json"
     volumes:
       - ../data:/data:ro

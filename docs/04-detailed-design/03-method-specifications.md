@@ -27,18 +27,18 @@ GuessResult evaluateGuess(Long puzzleId, String guess, Long userId)
   1. `tokenize(guess)`; проверить длину == длине целевого слова;
   2. если слова нет в словаре → `WordNotFoundException` (HTTP 422);
   3. вычислить статусы плиток (`computeTiles`);
-  4. `attempts++`; при `win` или `attempts == MAX_ATTEMPTS` — зафиксировать сессию.
+  4. `attempts++`; при `win` или `attempts == MAX_ATTEMPTS` - зафиксировать сессию.
 - **Выход:** `GuessResult{ tiles, attempt, finished, win }`.
 - **Постусловия:** при завершении создана `GameSession` со `score` от `ScoringService`.
 
-### computeTiles (приватный) — алгоритм подсветки
+### computeTiles (приватный) - алгоритм подсветки
 
 ```java
 TileStatus[] computeTiles(List<String> guess, List<String> target)
 ```
 Двухпроходный алгоритм (как в оригинальном Сёздл):
 1. **Проход 1:** буквы на своих местах → `CORRECT`; уменьшить счётчик буквы в target.
-2. **Проход 2:** для оставшихся — если буква ещё есть в остатке target → `PRESENT`
+2. **Проход 2:** для оставшихся - если буква ещё есть в остатке target → `PRESENT`
    (с декрементом), иначе `ABSENT`.
 
 Это корректно обрабатывает повторяющиеся буквы (не помечает лишние дубликаты жёлтым).

@@ -15,7 +15,7 @@ export default function ProfileScreen() {
       try {
         setSessions(await api.mySessions());
       } catch {
-        // оффлайн / ошибка — оставляем пустой список
+        // оффлайн / ошибка - оставляем пустой список
       } finally {
         setLoading(false);
       }

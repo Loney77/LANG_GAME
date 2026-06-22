@@ -46,7 +46,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         List.of(new SimpleGrantedAuthority("ROLE_" + role.name())));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (Exception ex) {
-                // Невалидный токен — оставляем запрос неаутентифицированным.
+                // Невалидный токен - оставляем запрос неаутентифицированным.
                 SecurityContextHolder.clearContext();
             }
         }

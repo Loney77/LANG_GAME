@@ -1,10 +1,10 @@
 # Этап. Развёртывание
 
-Серверная часть разворачивается в Docker, мобильный клиент — через Expo (APK).
+Серверная часть разворачивается в Docker, мобильный клиент - через Expo (APK).
 
 ## Серверный стек (Docker)
 
-Конфигурация — в каталоге [docker/](../../docker/).
+Конфигурация - в каталоге [docker/](../../docker/).
 
 - **Локальный запуск:** `docker-compose.yml` поднимает PostgreSQL и сервер
   (`docker compose up --build`).
@@ -26,7 +26,7 @@ docker compose -f docker-compose.prod.yml up -d --build
 - Установочный APK: `eas build -p android --profile preview` (Expo Application Services);
   адрес сервера берётся из `mobile/.env` (`EXPO_PUBLIC_API_URL`).
 
-Подробнее — в [docker/README.md](../../docker/README.md) и [mobile/README.md](../../mobile/README.md).
+Подробнее - в [docker/README.md](../../docker/README.md) и [mobile/README.md](../../mobile/README.md).
 
 ## Переменные окружения
 

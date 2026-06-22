@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC).permitAll()
-                        // Управление словарём/темами — только ADMIN.
+                        // Управление словарём/темами - только ADMIN.
                         .requestMatchers(HttpMethod.POST, "/api/words/**", "/api/themes/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/words/**", "/api/themes/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/words/**", "/api/themes/**").hasRole("ADMIN")

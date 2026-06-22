@@ -12,8 +12,8 @@
 
 `server/src/main/resources/db/migration/`:
 
-- `V1__init_schema.sql` — 8 таблиц (3НФ), ключи, ограничения, индексы
-- `V2__reference_data.sql` — типы игр (4) и темы (6)
-- `V3__seed_words.sql` — словарь (246 слов), генерируется `tools/gen_seed_sql.py`
+- `V1__init_schema.sql` - 8 таблиц (3НФ), ключи, ограничения, индексы
+- `V2__reference_data.sql` - типы игр (4) и темы (6)
+- `V3__seed_words.sql` - словарь (246 слов), генерируется `tools/gen_seed_sql.py`
 
 > 8 таблиц > требуемых 5-7 бизнес-сущностей.

@@ -2,17 +2,17 @@
 
 Архитектура построена на паттерне PCMEF. Зависимости направлены **строго сверху
 вниз**: Presentation → Control → Mediator → Entity → Foundation. Связь между
-слоями — через интерфейсы (`IService`, `IRepository`).
+слоями - через интерфейсы (`IService`, `IRepository`).
 
 ## Распределение слоёв между клиентом и сервером
 
-Presentation реализован на клиенте (React Native); Control/Mediator/Entity/Foundation —
-на сервере (Spring Boot). Граница P↔C — REST/JSON.
+Presentation реализован на клиенте (React Native); Control/Mediator/Entity/Foundation -
+на сервере (Spring Boot). Граница P↔C - REST/JSON.
 
 ```plantuml
 @startuml
 allowmixing
-title Архитектура PCMEF — «Сёз оюн»
+title Архитектура PCMEF - «Сёз оюн»
 
 package "МОБИЛЬНЫЙ КЛИЕНТ (Presentation)" #E8F4FF {
   rectangle "screens/\n(экраны, компоненты)" as Screens

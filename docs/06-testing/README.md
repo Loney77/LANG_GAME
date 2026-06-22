@@ -1,6 +1,6 @@
 # Тестирование и покрытие
 
-Модульное тестирование на JUnit 5 + Mockito, покрытие — JaCoCo.
+Модульное тестирование на JUnit 5 + Mockito, покрытие - JaCoCo.
 
 ## Тест-классы
 
@@ -34,10 +34,10 @@ cd server
 
 | Метрика | Покрытие |
 |---------|----------|
-| **LINE** | **60,8 %** (порог методички — > 40%) |
+| **LINE** | **60,8 %** (порог методички - > 40%) |
 | INSTRUCTION | 62,8 % |
 | BRANCH | 67,6 % |
 
-Полный HTML-отчёт — в [jacoco-report/index.html](jacoco-report/index.html)
-(машиночитаемый — `jacoco-report/jacocoTestReport.xml`). Геттеры и сеттеры Lombok
+Полный HTML-отчёт - в [jacoco-report/index.html](jacoco-report/index.html)
+(машиночитаемый - `jacoco-report/jacocoTestReport.xml`). Геттеры и сеттеры Lombok
 исключены из подсчёта (`@Generated`).

@@ -26,7 +26,7 @@ public class Puzzle {
     @JoinColumn(name = "game_type_id", nullable = false)
     private GameType gameType;
 
-    /** Дата ежедневного задания (null — не ежедневное). */
+    /** Дата ежедневного задания (null - не ежедневное). */
     @Column(name = "puzzle_date")
     private LocalDate puzzleDate;
 

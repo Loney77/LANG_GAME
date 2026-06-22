@@ -16,7 +16,7 @@ interface Row {
 const tileColor = (s: TileStatus) =>
   s === 'CORRECT' ? colors.correct : s === 'PRESENT' ? colors.present : colors.absent;
 
-/** Ряд плиток: для прошлых попыток — с цветом, для текущей — пустые/вводимые. */
+/** Ряд плиток: для прошлых попыток - с цветом, для текущей - пустые/вводимые. */
 function TileRow({ tokens, tiles, length }: { tokens: string[]; tiles?: TileStatus[]; length: number }) {
   const cells = Array.from({ length }, (_, i) => tokens[i] ?? '');
   return (

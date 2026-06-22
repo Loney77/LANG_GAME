@@ -86,7 +86,7 @@ jacocoTestCoverageVerification {
 
 check.dependsOn jacocoTestCoverageVerification
 
-// Статический анализ (Checkstyle). Не валит сборку — формирует отчёт-артефакт.
+// Статический анализ (Checkstyle). Не валит сборку - формирует отчёт-артефакт.
 checkstyle {
     toolVersion = '10.18.2'
     configFile = file("$rootDir/config/checkstyle/checkstyle.xml")

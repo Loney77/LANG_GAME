@@ -11,8 +11,8 @@ import java.util.Map;
  *
  * <p>Двухпроходный алгоритм корректно обрабатывает повторяющиеся буквы:
  * сначала помечаются буквы на своих местах ({@link TileStatus#CORRECT}),
- * затем из оставшегося запаса целевого слова — присутствующие
- * ({@link TileStatus#PRESENT}); прочие — {@link TileStatus#ABSENT}.</p>
+ * затем из оставшегося запаса целевого слова - присутствующие
+ * ({@link TileStatus#PRESENT}); прочие - {@link TileStatus#ABSENT}.</p>
  */
 public final class LetterMatcher {
 

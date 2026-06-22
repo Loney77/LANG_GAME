@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * Dev-загрузчик расширенного словаря (Сёзлюк) из локального JSON.
  *
  * &lt;p&gt;Данные источника НЕ хранятся в репозитории. Если файл существует рядом и в БД
- * только базовый seed — слова догружаются (идемпотентно, без дублей по написанию).
+ * только базовый seed - слова догружаются (идемпотентно, без дублей по написанию).
  * На машинах без файла загрузчик ничего не делает.&lt;/p&gt;
  */
 @Component
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 <span class="nc" id="L32">@Slf4j</span>
 public class SozlukSeedLoader implements ApplicationRunner {
 
-    private static final long BASELINE_THRESHOLD = 1000;   // выше — считаем, что уже загружено
+    private static final long BASELINE_THRESHOLD = 1000;   // выше - считаем, что уже загружено
     private static final int BATCH = 1000;
     private static final int MAX_TRANSLATION = 255;
 
@@ -55,12 +55,12 @@ public class SozlukSeedLoader implements ApplicationRunner {
 <span class="nc" id="L55">            return;</span>
         }
 <span class="nc bnc" id="L57" title="All 2 branches missed.">        if (words.count() &gt; BASELINE_THRESHOLD) {</span>
-<span class="nc" id="L58">            log.info(&quot;Словарь уже наполнен ({} слов) — пропускаю загрузку Сёзлюка&quot;, words.count());</span>
+<span class="nc" id="L58">            log.info(&quot;Словарь уже наполнен ({} слов) - пропускаю загрузку Сёзлюка&quot;, words.count());</span>
 <span class="nc" id="L59">            return;</span>
         }
 <span class="nc" id="L61">        Path path = Path.of(sozlukFile);</span>
 <span class="nc bnc" id="L62" title="All 2 branches missed.">        if (!Files.exists(path)) {</span>
-<span class="nc" id="L63">            log.info(&quot;Файл {} не найден — расширенный словарь не загружается (ок для CI/чужих машин)&quot;, path);</span>
+<span class="nc" id="L63">            log.info(&quot;Файл {} не найден - расширенный словарь не загружается (ок для CI/чужих машин)&quot;, path);</span>
 <span class="nc" id="L64">            return;</span>
         }
 
@@ -76,7 +76,7 @@ public class SozlukSeedLoader implements ApplicationRunner {
 <span class="nc" id="L76">                continue;</span>
             }
 <span class="nc" id="L78">            String key = rec.text().toLowerCase(Locale.ROOT);</span>
-<span class="nc bnc" id="L79" title="All 2 branches missed.">            if (!existing.add(key)) {     // уже есть (baseline или дубль) — пропускаем</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">            if (!existing.add(key)) {     // уже есть (baseline или дубль) - пропускаем</span>
 <span class="nc" id="L80">                continue;</span>
             }
 <span class="nc" id="L82">            Word word = new Word();</span>

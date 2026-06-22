@@ -82,4 +82,4 @@ public interface ISessionRepository extends JpaRepository<GameSession, Long> {
 
 - Интерфейсы **узкие** и ориентированы на сценарии (Interface Segregation).
 - Control не знает о реализациях Mediator; внедрение через конструктор (DI).
-- DTO отделены от `@Entity` — это вход в паттерн **Data Mapper** (Этап 6).
+- DTO отделены от `@Entity` - это вход в паттерн **Data Mapper** (Этап 6).

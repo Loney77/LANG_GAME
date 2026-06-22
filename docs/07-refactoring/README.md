@@ -18,6 +18,6 @@
 
 ## Качество
 
-- Checkstyle: после настройки — **0 нарушений** (`build/reports/checkstyle/main.html`).
-- Тесты после рефакторинга — зелёные, добавлен `WordMapperTest`.
+- Checkstyle: после настройки - **0 нарушений** (`build/reports/checkstyle/main.html`).
+- Тесты после рефакторинга - зелёные, добавлен `WordMapperTest`.
 - Покрытие JaCoCo сохраняется > 40% (новый код покрыт).

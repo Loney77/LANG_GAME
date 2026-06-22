@@ -11,7 +11,7 @@ Clean Architecture, классический MVC, гексагональная.
 
 ## Решение
 
-Используем **PCMEF** (Presentation-Control-Mediator-Entity-Foundation) —
+Используем **PCMEF** (Presentation-Control-Mediator-Entity-Foundation) -
 обязательный паттерн методички. Зависимости направлены строго сверху вниз,
 слои общаются через интерфейсы `IService` и `IRepository`.
 

@@ -1,7 +1,7 @@
 package ru.langgame.mediator.crossword;
 
 /**
- * Слово в кроссворде (внутренняя модель — содержит ответ, в payload).
+ * Слово в кроссворде (внутренняя модель - содержит ответ, в payload).
  *
  * @param number    номер записи
  * @param direction "ACROSS" (по горизонтали) или "DOWN" (по вертикали)
