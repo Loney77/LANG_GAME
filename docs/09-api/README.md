@@ -3,12 +3,12 @@
 Серверная обвязка слоя **Control** + безопасность. Документация API -
 OpenAPI/Swagger (springdoc).
 
-## Эндпоинты (12 операций, 9 путей)
+## Эндпоинты (19 операций, 15 путей)
 
 | Метод | Путь | Доступ | Назначение |
 |-------|------|--------|-----------|
-| POST | `/api/auth/register` | público | Регистрация (выдаёт JWT) |
-| POST | `/api/auth/login` | público | Вход (выдаёт JWT) |
+| POST | `/api/auth/register` | публичный | Регистрация (выдаёт JWT) |
+| POST | `/api/auth/login` | публичный | Вход (выдаёт JWT) |
 | GET | `/api/words` | USER | Список/поиск слов (`?length=`) |
 | GET | `/api/words/{id}` | USER | Слово по id |
 | POST | `/api/words` | ADMIN | Создать слово |
@@ -26,7 +26,7 @@ OpenAPI/Swagger (springdoc).
 | GET | `/api/sessions/me` | USER | История игр |
 | GET | `/api/leaderboard` | USER | Топ игроков |
 
-> Требование методички - ≥ 8 эндпоинтов. Выполнено (19).
+> Требование методички - ≥ 8 эндпоинтов. Выполнено (19 операций на 15 путях).
 
 ## Игры (слой Mediator)
 
@@ -64,9 +64,12 @@ OpenAPI/Swagger (springdoc).
 
 ## OpenAPI / Swagger UI
 
-- Спецификация: `GET /v3/api-docs`
+- Спецификация (онлайн): `GET /v3/api-docs` (JSON), `GET /v3/api-docs.yaml` (YAML).
 - UI: `http://localhost:8137/swagger-ui.html` (кнопка Authorize - вставить JWT).
 - Конфиг: `config/OpenApiConfig` (схема безопасности `bearerAuth`).
+- **Зафиксированный артефакт:** [openapi.yaml](openapi.yaml) - выгруженная спецификация
+  (15 путей, 19 операций, 27 схем) для просмотра без запуска сервера. Открывается в
+  [Swagger Editor](https://editor.swagger.io/) или импортируется в Postman/Insomnia.
 
 ## Обработка ошибок
 

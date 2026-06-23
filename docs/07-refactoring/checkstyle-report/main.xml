@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="10.18.2">
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\config\AuthUser.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\config\JwtAuthFilter.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\config\JwtService.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\config\OpenApiConfig.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\config\SecurityConfig.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\config\SozlukSeedLoader.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\control\AuthController.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\control\GameController.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\control\GlobalExceptionHandler.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\control\LeaderboardController.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\control\PuzzleController.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\control\SessionController.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\control\ThemeController.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\control\WordController.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\entity\AlphabetTokenizer.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\entity\GameSession.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\entity\GameType.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\entity\Puzzle.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\entity\QuizOption.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\entity\QuizQuestion.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\entity\Role.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\entity\SessionStatus.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\entity\Theme.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\entity\TileStatus.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\entity\TranslationText.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\entity\User.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\entity\Word.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\foundation\IGameTypeRepository.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\foundation\IPuzzleRepository.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\foundation\IQuizOptionRepository.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\foundation\IQuizQuestionRepository.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\foundation\ISessionRepository.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\foundation\IThemeRepository.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\foundation\IUserRepository.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\foundation\IWordRepository.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\LangGameApplication.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\AnagramService.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\AnagramShuffler.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\AuthService.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\crossword\CrosswordEntry.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\crossword\CrosswordGenerator.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\crossword\CrosswordLayout.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\CrosswordService.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\AnagramAnswerRequest.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\AnagramPuzzleDto.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\AnswerResult.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\AuthResponse.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\CreateWordRequest.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\CrosswordAnswerRequest.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\CrosswordPuzzleDto.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\CrosswordResult.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\GuessRequest.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\GuessResult.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\LeaderboardEntry.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\LoginRequest.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\PuzzleDto.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\QuizAnswerRequest.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\QuizAnswerResult.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\QuizQuestionDto.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\RegisterRequest.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\SessionDto.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\ThemeDto.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\UpdateWordRequest.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\dto\WordDto.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\exception\ConflictException.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\exception\InvalidGuessException.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\exception\NotFoundException.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\exception\UnauthorizedException.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\exception\WordNotFoundException.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\GameSessionRecorder.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\IAnagramService.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\IAuthService.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\ICrosswordService.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\ILeaderboardService.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\IPuzzleService.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\IQuizService.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\ISessionService.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\ISozdlService.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\IWordService.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\LeaderboardService.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\LetterMatcher.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\PuzzleService.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\QuizService.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\ScoringService.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\SessionService.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\SozdlService.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\ThemeService.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\WordMapper.java">
+</file>
+<file name="C:\Users\Klance\lang_game\server\src\main\java\ru\langgame\mediator\WordService.java">
+</file>
+</checkstyle>

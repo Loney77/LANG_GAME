@@ -1,0 +1,572 @@
+openapi: 3.0.3
+info:
+  title: «Сёз оюн» — REST API
+  description: >
+    REST API серверной части мобильного приложения для обучения карачаевскому
+    языку в игровой форме. Аутентификация — JWT (Bearer). Бизнес-логика игр
+    (проверка ответов, генерация заданий, подсчёт очков) выполняется на сервере,
+    правильные ответы клиенту не раскрываются.
+    Документ выгружен из работающего сервиса (springdoc-openapi, `/v3/api-docs`)
+    и зафиксирован как артефакт этапа.
+  version: 1.0.0
+  license:
+    name: MIT
+servers:
+  - url: http://localhost:8137
+    description: Локальный запуск
+  - url: https://<адрес-сервера>
+    description: Развёрнутый сервер (HTTPS через Caddy)
+
+tags:
+  - name: Аутентификация
+    description: Регистрация и вход (публичные эндпоинты)
+  - name: Словарь
+    description: Поиск/чтение для игроков, CRUD для администратора
+  - name: Темы
+    description: Тематические категории слов
+  - name: Задания
+    description: Генерация игровых заданий
+  - name: Игры
+    description: Проверка ответов игр
+  - name: Лидерборд
+    description: Рейтинг игроков
+  - name: Сессии
+    description: История игровых сессий пользователя
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/auth/register:
+    post:
+      tags: [Аутентификация]
+      summary: Регистрация нового игрока
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+      responses:
+        '200':
+          description: Игрок создан, выдан JWT
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /api/auth/login:
+    post:
+      tags: [Аутентификация]
+      summary: Вход и получение JWT
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: Успешная аутентификация
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/words:
+    get:
+      tags: [Словарь]
+      summary: Список/поиск слов (фильтр по длине)
+      parameters:
+        - name: length
+          in: query
+          required: false
+          schema: { type: integer }
+          description: Длина слова в карачаевских буквах (с учётом диграфов)
+      responses:
+        '200':
+          description: Список слов
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/WordDto' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [Словарь]
+      summary: Создать слово (ADMIN)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateWordRequest' }
+      responses:
+        '201':
+          description: Слово создано
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WordDto' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /api/words/{id}:
+    get:
+      tags: [Словарь]
+      summary: Слово по идентификатору
+      parameters: [ { $ref: '#/components/parameters/IdPath' } ]
+      responses:
+        '200':
+          description: Слово
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WordDto' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Словарь]
+      summary: Изменить слово (ADMIN)
+      parameters: [ { $ref: '#/components/parameters/IdPath' } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateWordRequest' }
+      responses:
+        '200':
+          description: Слово изменено
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WordDto' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Словарь]
+      summary: Удалить слово (ADMIN)
+      parameters: [ { $ref: '#/components/parameters/IdPath' } ]
+      responses:
+        '204': { description: Слово удалено }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/themes:
+    get:
+      tags: [Темы]
+      summary: Список тем
+      responses:
+        '200':
+          description: Список тем
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ThemeDto' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/puzzles/daily:
+    get:
+      tags: [Задания]
+      summary: Ежедневное задание Sozdl (целевое слово скрыто)
+      responses:
+        '200':
+          description: Задание дня
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PuzzleDto' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/puzzles/anagram:
+    get:
+      tags: [Задания]
+      summary: Новое задание-анаграмма
+      parameters:
+        - name: length
+          in: query
+          required: false
+          schema: { type: integer, default: 5 }
+      responses:
+        '200':
+          description: Анаграмма
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AnagramPuzzleDto' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/puzzles/quiz:
+    get:
+      tags: [Задания]
+      summary: Новый вопрос викторины
+      responses:
+        '200':
+          description: Вопрос с вариантами ответа
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QuizQuestionDto' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/puzzles/crossword:
+    get:
+      tags: [Задания]
+      summary: Новый кроссворд (автогенерация)
+      responses:
+        '200':
+          description: Сетка кроссворда с определениями
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CrosswordPuzzleDto' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/games/sozdl/guess:
+    post:
+      tags: [Игры]
+      summary: Проверить догадку в Sozdl
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GuessRequest' }
+      responses:
+        '200':
+          description: Подсветка букв по позициям
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GuessResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/games/anagram/answer:
+    post:
+      tags: [Игры]
+      summary: Проверить ответ на анаграмму
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AnagramAnswerRequest' }
+      responses:
+        '200':
+          description: Результат проверки
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AnswerResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/games/quiz/answer:
+    post:
+      tags: [Игры]
+      summary: Ответить на вопрос викторины
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/QuizAnswerRequest' }
+      responses:
+        '200':
+          description: Результат проверки
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QuizAnswerResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/games/crossword/answer:
+    post:
+      tags: [Игры]
+      summary: Проверить заполнение кроссворда
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CrosswordAnswerRequest' }
+      responses:
+        '200':
+          description: Результат с правильными ответами
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CrosswordResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/leaderboard:
+    get:
+      tags: [Лидерборд]
+      summary: Топ игроков за период
+      parameters:
+        - name: gameType
+          in: query
+          required: false
+          schema: { type: string }
+          description: Фильтр по виду игры (если не задан — по всем играм)
+        - name: days
+          in: query
+          required: false
+          schema: { type: integer, default: 30 }
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, default: 20 }
+      responses:
+        '200':
+          description: Рейтинг
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/LeaderboardEntry' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/sessions/me:
+    get:
+      tags: [Сессии]
+      summary: Моя история игр
+      responses:
+        '200':
+          description: Список сессий пользователя
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/SessionDto' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    IdPath:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer, format: int64 }
+
+  responses:
+    BadRequest:
+      description: Некорректный запрос / ошибка валидации
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Unauthorized:
+      description: Не аутентифицирован (отсутствует/недействителен JWT)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Forbidden:
+      description: Недостаточно прав (требуется роль ADMIN)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    NotFound:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Conflict:
+      description: Конфликт (например, имя пользователя занято)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [username, email, password]
+      properties:
+        username: { type: string, minLength: 3, maxLength: 50 }
+        email: { type: string, format: email }
+        password: { type: string, minLength: 6, maxLength: 100 }
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string }
+    AuthResponse:
+      type: object
+      properties:
+        token: { type: string, description: JWT для заголовка Authorization }
+        username: { type: string }
+        role: { type: string, enum: [USER, ADMIN] }
+    WordDto:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        text: { type: string, description: Слово на карачаевском }
+        translation: { type: string, description: Перевод на русский }
+        letterCount: { type: integer, description: Длина в карачаевских буквах (диграфы — одна буква) }
+        theme: { type: string, nullable: true }
+    CreateWordRequest:
+      type: object
+      required: [text, translation]
+      properties:
+        text: { type: string, maxLength: 64 }
+        translation: { type: string, maxLength: 255 }
+        themeId: { type: integer, format: int64, nullable: true }
+    UpdateWordRequest:
+      type: object
+      required: [text, translation]
+      properties:
+        text: { type: string, maxLength: 64 }
+        translation: { type: string, maxLength: 255 }
+        themeId: { type: integer, format: int64, nullable: true }
+    ThemeDto:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        name: { type: string }
+        description: { type: string, nullable: true }
+    PuzzleDto:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        gameType: { type: string }
+        length: { type: integer }
+        date: { type: string, format: date }
+    AnagramPuzzleDto:
+      type: object
+      properties:
+        puzzleId: { type: integer, format: int64 }
+        letters:
+          type: array
+          items: { type: string }
+          description: Перемешанные буквы (диграф — один элемент)
+        length: { type: integer }
+        hint: { type: string, description: Подсказка (перевод) }
+    QuizQuestionDto:
+      type: object
+      properties:
+        questionId: { type: integer, format: int64 }
+        questionText: { type: string }
+        options:
+          type: array
+          items: { $ref: '#/components/schemas/QuizOption' }
+    QuizOption:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        text: { type: string }
+    CrosswordPuzzleDto:
+      type: object
+      properties:
+        puzzleId: { type: integer, format: int64 }
+        rows: { type: integer }
+        cols: { type: integer }
+        clues:
+          type: array
+          items: { $ref: '#/components/schemas/CrosswordClue' }
+    CrosswordClue:
+      type: object
+      properties:
+        number: { type: integer }
+        direction: { type: string, enum: [ACROSS, DOWN] }
+        row: { type: integer }
+        col: { type: integer }
+        length: { type: integer }
+        clue: { type: string, description: Определение (перевод) }
+    GuessRequest:
+      type: object
+      required: [puzzleId, guess]
+      properties:
+        puzzleId: { type: integer, format: int64 }
+        guess: { type: string }
+    GuessResult:
+      type: object
+      properties:
+        tiles:
+          type: array
+          items: { $ref: '#/components/schemas/TileStatus' }
+          description: Статус каждой буквы догадки по позициям
+        attempt: { type: integer }
+        finished: { type: boolean }
+        win: { type: boolean }
+    TileStatus:
+      type: string
+      enum: [CORRECT, PRESENT, ABSENT]
+      description: >
+        CORRECT — буква на своём месте; PRESENT — буква есть, но на другой позиции;
+        ABSENT — буквы нет в слове.
+    AnagramAnswerRequest:
+      type: object
+      required: [puzzleId, answer]
+      properties:
+        puzzleId: { type: integer, format: int64 }
+        answer: { type: string }
+    AnswerResult:
+      type: object
+      properties:
+        correct: { type: boolean }
+        score: { type: integer }
+        correctAnswer: { type: string }
+    QuizAnswerRequest:
+      type: object
+      required: [questionId, optionId]
+      properties:
+        questionId: { type: integer, format: int64 }
+        optionId: { type: integer, format: int64 }
+    QuizAnswerResult:
+      type: object
+      properties:
+        correct: { type: boolean }
+        correctOptionId: { type: integer, format: int64 }
+        score: { type: integer }
+    CrosswordAnswerRequest:
+      type: object
+      required: [puzzleId, answers]
+      properties:
+        puzzleId: { type: integer, format: int64 }
+        answers:
+          type: array
+          items: { $ref: '#/components/schemas/CrosswordEntryAnswer' }
+    CrosswordEntryAnswer:
+      type: object
+      properties:
+        number: { type: integer }
+        direction: { type: string, enum: [ACROSS, DOWN] }
+        answer: { type: string }
+    CrosswordResult:
+      type: object
+      properties:
+        allCorrect: { type: boolean }
+        correct: { type: integer }
+        total: { type: integer }
+        score: { type: integer }
+        solutions:
+          type: array
+          items: { $ref: '#/components/schemas/CrosswordSolution' }
+    CrosswordSolution:
+      type: object
+      properties:
+        number: { type: integer }
+        direction: { type: string, enum: [ACROSS, DOWN] }
+        answer: { type: string }
+    LeaderboardEntry:
+      type: object
+      properties:
+        rank: { type: integer }
+        username: { type: string }
+        totalScore: { type: integer, format: int64 }
+    SessionDto:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        gameType: { type: string }
+        score: { type: integer }
+        attempts: { type: integer }
+        status: { type: string, enum: [IN_PROGRESS, WIN, LOSS] }
+        finishedAt: { type: string, format: date-time, nullable: true }
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp: { type: string, format: date-time }
+        status: { type: integer }
+        error: { type: string }
+        message: { type: string }

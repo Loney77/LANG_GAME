@@ -86,11 +86,11 @@ jacocoTestCoverageVerification {
 
 check.dependsOn jacocoTestCoverageVerification
 
-// Статический анализ (Checkstyle). Не валит сборку - формирует отчёт-артефакт.
+// Статический анализ (Checkstyle): нарушения валят сборку (код проходит чисто).
 checkstyle {
     toolVersion = '10.18.2'
     configFile = file("$rootDir/config/checkstyle/checkstyle.xml")
-    ignoreFailures = true
-    maxWarnings = Integer.MAX_VALUE
+    ignoreFailures = false
+    maxWarnings = 0
 }
 checkstyleTest.enabled = false   // анализируем основной код
